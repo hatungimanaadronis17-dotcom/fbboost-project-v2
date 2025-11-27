@@ -1,0 +1,7 @@
+Django>=5.1,<5.2
+gunicorn
+whitenoise
+Pillow
+django-crispy-forms
+crispy-bootstrap5
+psycopg2-binary
