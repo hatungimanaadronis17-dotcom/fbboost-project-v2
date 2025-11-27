@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Feed{% endblock %}
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4 text-white">Facebook Auto Boost</h1>
+    <p class="text-white">Tous les posts sont likés automatiquement toutes les 30 secondes</p>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for post in posts %}
+    <div class="col">
+        <div class="card h-100 shadow-lg">
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="card-img-top" style="height:200px; object-fit:cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text text-muted small">Par {{ post.author }} • {{ post.created_at|date:"d/m/Y H:i" }}</p>
+                <p class="card-text">{{ post.content|linebreaks|truncatewords:20 }}</p>
+                <button class="btn btn-outline-danger like-btn" data-post-id="{{ post.id }}">
+                    Likes ({{ post.likes.count }})
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center text-white"><h3>Aucun post… Crée-en dans l’admin !</h3></div>
+    {% endfor %}
+</div>
+{% endblock %}
