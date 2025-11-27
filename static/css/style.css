@@ -1,0 +1,13 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.card { border-radius: 20px; transition: all 0.3s; }
+.card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.auto-boost-badge {
+    position: fixed; bottom: 20px; right: 20px; background: #28a745; color: white;
+    padding: 15px 30px; border-radius: 50px; font-weight: bold; font-size: 1.1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
