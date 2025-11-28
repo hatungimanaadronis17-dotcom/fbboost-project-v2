@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center text-white mb-4">Échange de Likes & Follows</h1>
+    <div class="row text-center">
+        <div class="col-md-3">
+            <button class="btn btn-primary btn-lg w-100 mb-3" onclick="select('facebook')">Facebook</button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-danger btn-lg w-100 mb-3" onclick="select('instagram')">Instagram</button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-dark btn-lg w-100 mb-3" onclick="select('tiktok')">TikTok</button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-warning btn-lg w-100 mb-3" onclick="select('youtube')">YouTube</button>
+        </div>
+    </div>
+
+    <div id="form-container" class="mt-5 card p-4" style="display:none;">
+        <h3 id="platform-title"></h3>
+        <form id="task-form">
+            {% csrf_token %}
+            <input type="hidden" id="platform" name="platform">
+            <input type="url" class="form-control mb-3" placeholder="Colle le lien de la publication" name="url" required>
+            <button type="submit" class="btn btn-success btn-lg">Gagner des coins</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <div class="mt-5 text-white text-center">
+        <h2>Tes coins : <span id="coins">{{ request.user.balance.coins }}</span> </h2>
+        <a href="{% url 'exchange:withdraw' %}" class="btn btn-warning btn-lg">Retirer l’argent</a>
+    </div>
+</div>
+
+<script>
+function select(platform) {
+    document.getElementById('platform').value = platform;
+    document.getElementById('platform-title').innerText = 'Échange sur ' + platform;
+    document.getElementById('form-container').style.display = 'block';
+}
+document.getElementById('task-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const res = await fetch('/exchange/submit/', {method: 'POST', body: form});
+    const data = await res.json();
+    document.getElementById('result').innerHTML = data.success ? '<p class="text-success">Tâche envoyée ! Vérification auto...</p>' : '<p class="text-danger">'+data.error+'</p>';
+};
+setInterval(() => location.reload(), 60000); // refresh coins toutes les minutes
+</script>
+{% endblock %}
