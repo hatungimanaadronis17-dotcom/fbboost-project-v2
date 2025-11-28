@@ -2,14 +2,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('admin/', admin_view, name='admin'),
-    path('exchange/', include('exchange.urls')),
+    path('admin/', admin.site.urls),  # ← OUI, c'est la bonne façon
+    path('login/', include('users.urls')),  # login + register
     path('', include('exchange.urls')),  # page d'accueil = échange
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('register/', include('users.urls')),  # inscription
 ]
 
 if settings.DEBUG:
