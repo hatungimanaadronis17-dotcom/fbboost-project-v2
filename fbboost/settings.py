@@ -1,12 +1,15 @@
 from pathlib import Path
 import os
 
+# Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-change-me-in-production-please'
+# SECURITY
+SECRET_KEY = 'django-insecure-change-this-in-production-please'
 DEBUG = True
-ALLOWED_HOSTS = ['*']  # On mettra les vrais hosts sur Render
+ALLOWED_HOSTS = ['*']
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -36,8 +39,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'fbboost.urls'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
 TEMPLATES = [
     {
@@ -57,6 +58,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fbboost.wsgi.application'
 
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -64,6 +66,7 @@ DATABASES = {
     }
 }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -71,25 +74,30 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Internationalization
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Africa/Bujumbura'
 USE_I18N = True
 USE_TZ = True
 
+# Static files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Crispy forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# REDIRECTION FINALE
+# REDIRECTION LOGIN – LA BONNE PLACE
 LOGIN_URL = '/exchange/'
 LOGIN_REDIRECT_URL = '/exchange/'
 LOGOUT_REDIRECT_URL = '/exchange/'
