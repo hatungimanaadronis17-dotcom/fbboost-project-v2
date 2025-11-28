@@ -1,5 +1,8 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+
 {% block title %}Connexion{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -9,11 +12,11 @@
                     <h2 class="text-center mb-4">Connexion</h2>
                     <form method="post">
                         {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary btn-lg w-100">Se connecter</button>
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">Se connecter</button>
                     </form>
-                    <p class="text-center mt-3">
-                        Pas de compte ? <a href="{% url 'users:register' %}">S'inscrire (50 coins gratuits)</a>
+                    <p class="text-center mt-4">
+                        Pas de compte ? <a href="/register/" class="text-warning fw-bold">S'inscrire → 50 coins gratuits</a>
                     </p>
                 </div>
             </div>
