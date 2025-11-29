@@ -1,3 +1,4 @@
+app_name = 'exchange'
 from django.urls import path
 from . import views
 
