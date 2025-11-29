@@ -1,3 +1,4 @@
+app_name = 'users'
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views   # ← remplace par tes vraies vues si tu en as des personnalisées
