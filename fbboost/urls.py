@@ -1,3 +1,4 @@
+from django.contrib import views
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -6,12 +7,12 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Auth Django en premier (pour que /login/ marche sans conflit)
+    # 1. Auth Django → /login/ et /logout/ avec ton template
     path('', include('django.contrib.auth.urls')),
 
-    # Tes apps avec NAMESPACE explicite (c'est ÇA qui fixe le KeyError 'exchange')
-    path('', include('users.urls', namespace='users')),
-    path('', include('exchange.urls', namespace='exchange')),
+    # 2. Tes apps (pas de namespace ici, on les met dans chaque app)
+    path('', include('users.urls')),
+    path('', include('exchange.urls')),
 ]
 
 if settings.DEBUG:
