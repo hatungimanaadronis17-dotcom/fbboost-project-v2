@@ -64,7 +64,7 @@ def submit_task(request):
 
     # Ajout des coins
     balance = Balance.objects.get(user=request.user)
-    reward = 10  # change selon ta logique (peut être dans settings ou modèle)
+    reward = 10  # change selon ta logique
     balance.coins += reward
     balance.save()
 
@@ -74,3 +74,7 @@ def submit_task(request):
         'total': balance.coins,
         'new_balance': balance.coins
     })
+
+
+# Ligne magique qui fait tout fonctionner
+home = exchange_home
