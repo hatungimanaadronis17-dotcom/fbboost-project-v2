@@ -6,10 +6,10 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Cette ligne fait marcher /login/ et /logout/ avec ton template
+    # AUTH DJANGO EN PREMIER – obligatoire pour que /login/ marche
     path('', include('django.contrib.auth.urls')),
 
-    # Tes deux apps (l’ordre n’a pas d’importance ici)
+    # Tes apps après
     path('', include('users.urls')),
     path('', include('exchange.urls')),
 ]
