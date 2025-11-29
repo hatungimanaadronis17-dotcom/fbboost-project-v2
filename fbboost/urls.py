@@ -6,12 +6,12 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # AUTH DJANGO EN PREMIER – obligatoire pour que /login/ marche
+    # Auth Django en premier (pour que /login/ marche sans conflit)
     path('', include('django.contrib.auth.urls')),
 
-    # Tes apps après
-    path('', include('users.urls')),
-    path('', include('exchange.urls')),
+    # Tes apps avec NAMESPACE explicite (c'est ÇA qui fixe le KeyError 'exchange')
+    path('', include('users.urls', namespace='users')),
+    path('', include('exchange.urls', namespace='exchange')),
 ]
 
 if settings.DEBUG:
