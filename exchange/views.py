@@ -1,5 +1,3 @@
-# exchange/views.py – VRAIE VERSION FINALE (à coller maintenant)
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -11,12 +9,12 @@ from .models import Balance, Task
 
 
 @login_required(login_url='/login/')
-def home(request):
+def home(request):                                            # ← C'EST LE BON NOM
     # Protection anti-next infinie
     if "next" in request.GET:
         dangerous_next = request.GET.get("next", "")
         if len(dangerous_next) > 400 or dangerous_next.count("/exchange") > 5:
-            return redirect('exchange:home')  # ← CORRIGÉ : name='home'
+            return redirect('exchange:home')
 
     balance, _ = Balance.objects.get_or_create(user=request.user, defaults={'coins': 0})
 
