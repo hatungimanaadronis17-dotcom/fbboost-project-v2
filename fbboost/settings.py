@@ -97,3 +97,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+
+# === CRÉATION AUTOMATIQUE DU SUPERUSER EN LIGNE (à supprimer après le premier déploiement) ===
+if os.getenv('CREATE_SUPERUSER') == 'True':
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='',
+            password='FbBoost2025@admin'
+        )
+        print("SUPERUSER 'admin' CRÉÉ AVEC SUCCÈS ! Mot de passe : FbBoost2025@admin")
