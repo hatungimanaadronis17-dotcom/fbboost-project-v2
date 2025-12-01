@@ -11,7 +11,7 @@ from .models import Balance, Task
 
 
 @login_required(login_url='/login/')
-def exchange_home(request):
+def home(request):
     # Protection anti-next infinie
     if "next" in request.GET:
         dangerous_next = request.GET.get("next", "")
