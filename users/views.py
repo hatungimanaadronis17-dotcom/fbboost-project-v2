@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.contrib import messages
 from .forms import RegisterForm
 from exchange.models import Balance
 
@@ -12,8 +12,10 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            Balance.objects.create(user=user, coins=50)  # bonus inscription
-            return redirect('exchange:home')
+            # Bonus de 50 coins à l’inscription
+            Balance.objects.get_or_create(user=user, defaults={'coins': 50})
+            messages.success(request, 'Inscription réussie ! Tu reçois 50 coins gratuits.')
+            return redirect('exchange:home')   # ← C’EST ÇA QUI MANQUAIT
     else:
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
@@ -21,6 +23,6 @@ def register(request):
 
 @login_required
 def profile(request):
-    return HttpResponse(f"Bonjour {request.user.username} ! Ton profil arrive bientôt.")
-    # Plus tard tu pourras remplacer par un vrai template :
-    # return render(request, 'users/profile.html', {'user': request.user})
+    # Récupère le solde de l’utilisateur
+    balance = Balance.objects.get(user=request.user)
+    return render(request, 'users/profile.html', {'balance': balance})
