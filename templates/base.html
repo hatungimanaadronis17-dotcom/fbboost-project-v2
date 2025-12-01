@@ -23,7 +23,7 @@
         {% block content %}{% endblock %}
     </div>
 
-    {% if user.is_authenticated and user.profile.auto_boost %}
+    {% if user.is_authenticated and hasattr(user, 'profile') and user.profile.auto_boost %}
         <div class="auto-boost-badge">Auto-Boost ACTIVÉ</div>
     {% endif %}
 
