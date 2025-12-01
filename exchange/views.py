@@ -1,80 +1,83 @@
-# exchange/views.py
+# exchange/views.py – Version finale corrigée (prête à coller)
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
-from django.urls import reverse
-from .models import Balance, Task  # ajuste si tes modèles sont ailleurs
+from django.contrib import messages
+import re
+
+from .models import Balance, Task
 
 
 @login_required(login_url='/login/')
 def exchange_home(request):
-    # PROTECTION FORTE CONTRE L'ATTAQUE next= infinie
+    # Protection anti-next infinie (tu l’as bien fait)
     if "next" in request.GET:
-        dangerous_next = request.GET["next"]
+        dangerous_next = request.GET.get("next", "")
         if len(dangerous_next) > 400 or dangerous_next.count("/exchange") > 5:
-            # On redirige proprement sans planter
-            return redirect('exchange_home')  # 'exchange_home' = le name de ton url
+            return redirect('exchange:exchange_home')
 
-    # Récupération du solde de l'utilisateur
-    balance, _ = Balance.objects.get_or_create(user=request.user)
-    
-    context = {
-        'balance': balance.coins,
-    }
+    # ON PASSE L'OBJET BALANCE, PAS JUSTE LE NOMBRE
+    balance, _ = Balance.objects.get_or_create(user=request.user, defaults={'coins': 0})
 
-    return render(request, 'exchange/home.html', context)
+    return render(request, 'exchange/home.html', {
+        'balance': balance  # ← CORRIGÉ : objet complet
+    })
 
 
 @login_required(login_url='/login/')
 def submit_task(request):
     if request.method != 'POST':
-        return JsonResponse({'error': 'POST requis'}, status=400)
+        return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
     url = request.POST.get('url', '').strip()
-    platform = request.POST.get('platform', '').strip()
+    platform = request.POST.get('platform', '').strip().lower()
 
     if not url or not platform:
-        return JsonResponse({'error': 'URL et plateforme requis'}, status=400)
+        return JsonResponse({'error': 'URL et plateforme manquantes'}, status=400)
 
-    # Anti-triche : 1 tâche toutes les 90 secondes minimum
-    ninety_seconds_ago = timezone.now() - timedelta(seconds=90)
-    recent_task = Task.objects.filter(
-        user=request.user,
-        created_at__gte=ninety_seconds_ago
-    ).exists()
+    if platform not in ['facebook', 'instagram', 'tiktok', 'youtube']:
+        return JsonResponse({'error': 'Plateforme invalide'}, status=400)
 
-    if recent_task:
+    # Vérification basique que l'URL ressemble à quelque chose
+    if not re.match(r'^https?://', url):
+        return JsonResponse({'error': 'URL invalide (doit commencer par http ou https)'}, status=400)
+
+    # Anti-triche : 1 tâche toutes les 90 secondes
+    limit = timezone.now() - timedelta(seconds=90)
+    if Task.objects.filter(user=request.user, created_at__gte=limit).exists():
         return JsonResponse({
             'error': 'Attends 90 secondes entre chaque tâche !',
             'cooldown': True
         }, status=429)
 
-    # Création de la tâche
-    task = Task.objects.create(
+    # Récompense selon plateforme (comme Addmefast)
+    rewards = {
+        'facebook': 10,
+        'instagram': 12,
+        'tiktok': 15,
+        'youtube': 20,
+    }
+    reward = rewards.get(platform, 10)
+
+    # Création tâche + ajout coins
+    Task.objects.create(
         user=request.user,
         platform=platform,
         url=url,
-        validated=True,           # ou False si tu veux valider manuellement
+        validated=True,      # ou False si tu veux modération manuelle plus tard
         completed=True
     )
-    task.save()
 
-    # Ajout des coins
     balance = Balance.objects.get(user=request.user)
-    reward = 10  # change selon ta logique
     balance.coins += reward
     balance.save()
 
     return JsonResponse({
         'success': True,
-        'message': f'+{reward} coins !',
-        'total': balance.coins,
-        'new_balance': balance.coins
+        'coins': reward,           # ← pour le +X coins
+        'total': balance.coins,    # ← pour mise à jour live
+        'message': f'+{reward} coins !'
     })
-
-
-# Ligne magique qui fait tout fonctionner
-home = exchange_home
