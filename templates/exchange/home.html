@@ -3,7 +3,11 @@
 {% block content %}
 <div class="container mt-5 text-white text-center">
     <h1 class="display-4 mb-4">Échange de Likes & Follows</h1>
-    <h2 class="mb-5">Tes coins : <strong class="text-warning fs-1">{{ balance.coins }}</strong></h2>
+    <h2 class="mb-5">
+        Tes coins : <strong class="text-warning fs-1">
+            {% if balance %}{{ balance.coins }}{% else %}0{% endif %}
+        </strong>
+    </h2>
 </div>
 
 <div class="row justify-content-center g-4 mb-5">
@@ -27,23 +31,52 @@
 </div>
 
 <script>
+// Fonction pour récupérer le CSRF token proprement (obligatoire en production)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function select(p) {
     document.getElementById('platform').value = p;
     document.getElementById('title').innerText = p.charAt(0).toUpperCase() + p.slice(1);
     document.getElementById('form-container').style.display = 'block';
+    document.getElementById('result').innerHTML = '';
 }
+
 document.getElementById('task-form').onsubmit = async (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
     const res = await fetch('/exchange/submit/', {
         method: 'POST',
         body: form,
-        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),  // Correction critique
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     });
     const data = await res.json();
-    document.getElementById('result').innerHTML = data.success 
-        ? `<p class="text-success">Validé ! +\( {data.message.split('+')[1]}<br>Total : \){data.total} coins</p>`
-        : `<p class="text-danger">${data.error}</p>`;
+    
+    if (data.success) {
+        document.getElementById('result').innerHTML = 
+            `<p class="text-success">Validé ! +${data.coins} coins<br>
+             Total : <strong>${data.total}</strong> coins</p>`;
+        // Met à jour les coins en haut sans recharger
+        document.querySelector('.text-warning.fs-1').textContent = data.total;
+    } else {
+        document.getElementById('result').innerHTML = 
+            `<p class="text-danger">${data.error || 'Erreur inconnue'}</p>`;
+    }
 };
 </script>
 {% endblock %}
