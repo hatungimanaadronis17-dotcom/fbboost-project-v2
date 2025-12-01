@@ -1,0 +1,19 @@
+# Exported from Render on 2025-12-01T14:17:54Z
+version: "1"
+services:
+- type: web
+  name: fbboost-project-v2
+  runtime: python
+  repo: https://github.com/hatungimanaadronis17-dotcom/fbboost-project-v2
+  plan: free
+  envVars:
+  - key: DJANGO_SUPERUSER_PASSWORD
+    sync: false
+  region: frankfurt
+  buildCommand: pip install -r requirements.txt && python manage.py migrate && python
+    manage.py collectstatic --noinput && python manage.py shell < <(echo "from django.contrib.auth
+    import get_user_model; User = get_user_model(); User.objects.create(username='admin',
+    email='admin@fbboost.com', is_superuser=True, is_staff=True, password='pbkdf2_sha256\$600000\$randomsalt\$FbBoost2025@adminhashed')
+    if not User.objects.filter(username='admin').exists() else None")
+  startCommand: gunicorn fbboost.wsgi:application --log-file -
+  autoDeployTrigger: "off"
