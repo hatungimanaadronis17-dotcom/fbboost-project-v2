@@ -1,0 +1,97 @@
+/* Style général */
+body {
+  font-family: 'Roboto', sans-serif;
+  background: #f4f6f9;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+.header {
+  background: #fff;
+  padding: 15px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.container {
+  width: 90%;
+  max-width: 1150px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.logo span {
+  color: #28a745;
+}
+
+.nav a {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+}
+
+.nav .active {
+  color: #28a745;
+}
+
+/* Coins */
+.coins {
+  background: #28a745;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  color: #fff;
+  font-size: 15px;
+  margin-right: 10px;
+}
+
+/* Tableau */
+.table-container {
+  margin-top: 40px;
+}
+
+.tasks-table {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tasks-table thead {
+  background: #28a745;
+  color: white;
+}
+
+.tasks-table th, .tasks-table td {
+  padding: 14px;
+  text-align: center;
+}
+
+.reward {
+  color: #28a745;
+  font-weight: bold;
+}
+
+/* bouton */
+.action-btn {
+  background: #28a745;
+  border: none;
+  padding: 10px 18px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.action-btn:disabled {
+  background: #6c757d !important;
+  cursor: default;
+}
