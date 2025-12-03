@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gagner des Coins</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'users/addmefast.css' %}">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container">
+      <div class="logo">My<span>App</span></div>
+      <nav class="nav">
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Gagner des coins</a>
+        <a href="#">Dépenser des coins</a>
+        <a href="#">Profil</a>
+      </nav>
+      <div class="user-info">
+        <span class="coins">12 487 coins</span>
+        <span class="username">Bonjour, Kevin</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="container main-content">
+
+    <h2 class="section-title">Tâches disponibles (Gagnez des coins)</h2>
+
+    <div class="table-container">
+      <table class="tasks-table">
+        <thead>
+          <tr>
+            <th>Réseau</th>
+            <th>Tâche</th>
+            <th>Récompense</th>
+            <th>Temps restant</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tasks-body">
+          <!-- rempli par JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button disabled>Précédent</button>
+      <span>Page 1 sur 24</span>
+      <button>Suivant</button>
+    </div>
+  </div>
+
+  <script src="{% static 'users/addmefast.js' %}"></script>
+</body>
+</html>
