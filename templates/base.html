@@ -23,8 +23,10 @@
         {% block content %}{% endblock %}
     </div>
 
-    {% if user.is_authenticated and hasattr(user, 'profile') and user.profile.auto_boost %}
-        <div class="auto-boost-badge">Auto-Boost ACTIVÉ</div>
+    {% if user.is_authenticated %}
+        {% if user.profile and user.profile.auto_boost %}
+            <div class="auto-boost-badge">Auto-Boost ACTIVÉ</div>
+        {% endif %}
     {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
