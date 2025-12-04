@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-import dj_database_url  # ← AJOUTÉ
+import dj_database_url  # ← déjà présent
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -59,15 +59,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fbboost.wsgi.application'
 
-# ==================== NOUVELLE CONFIG DATABASE ====================
+# ==================== CONFIG DATABASE CORRIGÉE (psycopg3 compatible) ====================
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get('DATABASE_URL', 'sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
         conn_max_age=600,
-        ssl_require=True
+        conn_health_checks=True
     )
 }
-# =================================================================
+# ====================================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
