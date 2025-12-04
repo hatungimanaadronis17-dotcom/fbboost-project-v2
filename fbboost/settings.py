@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import dj_database_url
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,7 +46,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context.processors.debug',
+                'django.template.context_processors.debug',        # CORRIGÉ ici
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -56,9 +57,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fbboost.wsgi.application'
 
-# =============== DATABASE 100% POSTGRESQL SUR RENDER ===============
-# Si DATABASE_URL existe → PostgreSQL (Render)
-# Sinon → SQLite (local seulement)
+# ================= DATABASE =================
 DATABASES = {
     'default': dj_database_url.config(
         conn_max_age=600,
@@ -68,7 +67,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-# =====================================================================
+# ============================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -77,9 +76,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-LANGUAGE_CODE = 'fr-fr'
+# LANG & TIMEZONE
+LANGUAGE_CODE = 'fr'            # MODIFIE: 'fr-fr' → 'fr' pour éviter les conflits
 TIME_ZONE = 'Africa/Bujumbura'
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
