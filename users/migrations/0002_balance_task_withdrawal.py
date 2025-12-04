@@ -6,6 +6,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('users', '0001_initial'),  # ← dépendance corrigée
         ('auth', '0012_alter_user_first_name_max_length'),
     ]
 
