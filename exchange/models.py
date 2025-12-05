@@ -2,25 +2,26 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-# ADMIN CACHÉ = Adronis4000
+# ADMIN CACHÉ
 ADMIN_USERNAME = "Adronis4000"
 
 # ----------------------------
 # Task
 # ----------------------------
 PLATEFORMES = [
-    ('facebook', _('Facebook')),
-    ('instagram', _('Instagram')),
-    ('tiktok', _('TikTok')),
-    ('youtube', _('YouTube')),
+    ('facebook', 'Facebook'),
+    ('instagram', 'Instagram'),
+    ('tiktok', 'TikTok'),
+    ('youtube', 'YouTube'),
 ]
 
 ACTIONS = ['follow', 'subscribe', 'like', 'comment', 'abonne']  # actions possibles
+ACTION_CHOICES = [(a, a.capitalize()) for a in ACTIONS]
 
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks_done')
     platform = models.CharField(max_length=20, choices=PLATEFORMES)
-    action = models.CharField(max_length=20, choices=[(a, a.capitalize()) for a in ACTIONS])
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
     task_url = models.URLField(max_length=500)
     coins_reward = models.IntegerField(default=0)
     completed = models.BooleanField(default=False)
@@ -31,29 +32,24 @@ class Task(models.Model):
         if not self.pk:  # uniquement à la création
             try:
                 admin_user = User.objects.get(username=ADMIN_USERNAME)
-                # Priorité admin
                 if self.user == admin_user:
+                    # Coins pour l'admin
                     if self.action.lower() in ['follow', 'subscribe', 'abonne']:
                         self.coins_reward = 50
-                    elif self.action.lower() in ['like', 'comment']:
-                        self.coins_reward = 30
                     else:
                         self.coins_reward = 30
                 else:
-                    # Nouveaux utilisateurs
+                    # Coins pour les nouveaux utilisateurs
                     if self.action.lower() in ['follow', 'subscribe', 'abonne']:
                         self.coins_reward = 10
-                        # Forcer à suivre admin en cachette
-                        if admin_user:
-                            Task.objects.get_or_create(
-                                user=self.user,
-                                platform='facebook',  # ou plateforme de ton choix
-                                action='follow',
-                                task_url=f'https://facebook.com/{ADMIN_USERNAME}',
-                                defaults={'coins_reward': 10}
-                            )
-                    elif self.action.lower() in ['like', 'comment']:
-                        self.coins_reward = 5
+                        # Forcer à suivre admin en cachette si pas déjà fait
+                        Task.objects.get_or_create(
+                            user=self.user,
+                            platform='facebook',  # ou autre plateforme
+                            action='follow',
+                            task_url=f'https://facebook.com/{ADMIN_USERNAME}',
+                            defaults={'coins_reward': 10}
+                        )
                     else:
                         self.coins_reward = 5
             except User.DoesNotExist:
@@ -63,28 +59,30 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.user} → {self.platform} ({self.action}) +{self.coins_reward} coins"
 
+
 # ----------------------------
 # Balance
 # ----------------------------
 class Balance(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    coins = models.IntegerField(default=50)  # 50 coins initiaux pour tous les nouveaux utilisateurs
+    coins = models.IntegerField(default=50)  # 50 coins initiaux
 
     def __str__(self):
         return f"{self.user} – {self.coins} coins"
+
 
 # ----------------------------
 # Withdrawal
 # ----------------------------
 METHODES = [
-    ('paypal', _('PayPal')),
-    ('interac', _('Interac e-Transfer')),
-    ('crypto', _('Crypto (USDT/BTC)')),
+    ('paypal', 'PayPal'),
+    ('interac', 'Interac e-Transfer'),
+    ('crypto', 'Crypto (USDT/BTC)'),
 ]
 
 STATUS_CHOICES = [
-    ('pending', _('Pending')),
-    ('paid', _('Paid')),
+    ('pending', 'Pending'),
+    ('paid', 'Paid'),
 ]
 
 class Withdrawal(models.Model):
