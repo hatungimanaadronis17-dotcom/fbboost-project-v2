@@ -1,26 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop as _
 
-# ADMIN CACHÉ
 ADMIN_USERNAME = "Adronis4000"
 
-# ----------------------------
-# Plateformes et actions
-# ----------------------------
 PLATEFORMES = [
-    ('facebook', 'Facebook'),
-    ('instagram', 'Instagram'),
-    ('tiktok', 'TikTok'),
-    ('youtube', 'YouTube'),
+    ('facebook', _('Facebook')),
+    ('instagram', _('Instagram')),
+    ('tiktok', _('TikTok')),
+    ('youtube', _('YouTube')),
 ]
 
-ACTIONS = ['follow', 'subscribe', 'like', 'comment', 'abonne']  # actions possibles
+ACTIONS = ['follow', 'subscribe', 'like', 'comment', 'abonne']
 ACTION_CHOICES = [(a, a.capitalize()) for a in ACTIONS]
 
-# ----------------------------
-# Task
-# ----------------------------
+
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks_done')
     platform = models.CharField(max_length=20, choices=PLATEFORMES)
@@ -32,20 +26,17 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk:  # uniquement à la création
+        if not self.pk:
             try:
                 admin_user = User.objects.get(username=ADMIN_USERNAME)
                 if self.user == admin_user:
-                    # Coins pour l'admin
                     if self.action.lower() in ['follow', 'subscribe', 'abonne']:
                         self.coins_reward = 50
                     else:
                         self.coins_reward = 30
                 else:
-                    # Coins pour les nouveaux utilisateurs
                     if self.action.lower() in ['follow', 'subscribe', 'abonne']:
                         self.coins_reward = 10
-                        # Forcer à suivre admin en cachette si pas déjà fait
                         Task.objects.get_or_create(
                             user=self.user,
                             platform='facebook',
@@ -63,30 +54,25 @@ class Task(models.Model):
         return f"{self.user} → {self.platform} ({self.action}) +{self.coins_reward} coins"
 
 
-# ----------------------------
-# Balance
-# ----------------------------
 class Balance(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    coins = models.IntegerField(default=50)  # 50 coins initiaux
+    coins = models.IntegerField(default=50)
 
     def __str__(self):
         return f"{self.user} – {self.coins} coins"
 
 
-# ----------------------------
-# Withdrawal
-# ----------------------------
 METHODES = [
-    ('paypal', 'PayPal'),
-    ('interac', 'Interac e-Transfer'),
-    ('crypto', 'Crypto (USDT/BTC)'),
+    ('paypal', _('PayPal')),
+    ('interac', _('Interac e-Transfer')),
+    ('crypto', _('Crypto (USDT/BTC)')),
 ]
 
 STATUS_CHOICES = [
-    ('pending', 'Pending'),
-    ('paid', 'Paid'),
+    ('pending', _('Pending')),
+    ('paid', _('Paid')),
 ]
+
 
 class Withdrawal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -97,9 +83,6 @@ class Withdrawal(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-# ----------------------------
-# ProfileLink (nouveau)
-# ----------------------------
 class ProfileLink(models.Model):
     platform = models.CharField(max_length=20, choices=PLATEFORMES)
     url = models.URLField(max_length=500)
