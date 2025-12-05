@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 ADMIN_USERNAME = "Adronis4000"
 
 # ----------------------------
-# Task
+# Plateformes et actions
 # ----------------------------
 PLATEFORMES = [
     ('facebook', 'Facebook'),
@@ -18,6 +18,9 @@ PLATEFORMES = [
 ACTIONS = ['follow', 'subscribe', 'like', 'comment', 'abonne']  # actions possibles
 ACTION_CHOICES = [(a, a.capitalize()) for a in ACTIONS]
 
+# ----------------------------
+# Task
+# ----------------------------
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks_done')
     platform = models.CharField(max_length=20, choices=PLATEFORMES)
@@ -45,7 +48,7 @@ class Task(models.Model):
                         # Forcer à suivre admin en cachette si pas déjà fait
                         Task.objects.get_or_create(
                             user=self.user,
-                            platform='facebook',  # ou autre plateforme
+                            platform='facebook',
                             action='follow',
                             task_url=f'https://facebook.com/{ADMIN_USERNAME}',
                             defaults={'coins_reward': 10}
@@ -92,3 +95,16 @@ class Withdrawal(models.Model):
     details = models.CharField(max_length=200)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# ----------------------------
+# ProfileLink (nouveau)
+# ----------------------------
+class ProfileLink(models.Model):
+    platform = models.CharField(max_length=20, choices=PLATEFORMES)
+    url = models.URLField(max_length=500)
+    description = models.CharField(max_length=200, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.platform} → {self.url}"
