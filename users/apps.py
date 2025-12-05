@@ -1,4 +1,3 @@
-
 from django.apps import AppConfig
 
 class UsersConfig(AppConfig):
@@ -6,4 +5,5 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
-        import users.signals  # charge les signals
+        # Importer les signals pour la génération automatique des coins et des tâches
+        import users.signals
