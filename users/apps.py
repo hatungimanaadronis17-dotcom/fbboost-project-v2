@@ -5,5 +5,5 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
-        # Importer les signals pour la génération automatique des coins et des tâches
+        # Charge les signals seulement quand l'app est prête
         import users.signals
