@@ -15,9 +15,12 @@ PLATEFORMES = [
     ('youtube', _('YouTube')),
 ]
 
+ACTIONS = ['follow', 'subscribe', 'like', 'comment', 'abonne']  # actions possibles
+
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks_done')
     platform = models.CharField(max_length=20, choices=PLATEFORMES)
+    action = models.CharField(max_length=20, choices=[(a, a.capitalize()) for a in ACTIONS])
     task_url = models.URLField(max_length=500)
     coins_reward = models.IntegerField(default=0)
     completed = models.BooleanField(default=False)
@@ -25,20 +28,31 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk:
+        if not self.pk:  # uniquement à la création
             try:
                 admin_user = User.objects.get(username=ADMIN_USERNAME)
+                # Priorité admin
                 if self.user == admin_user:
-                    if 'follow' in self.task_url.lower() or 'abonne' in self.task_url.lower():
+                    if self.action.lower() in ['follow', 'subscribe', 'abonne']:
                         self.coins_reward = 50
-                    elif 'comment' in self.task_url.lower():
+                    elif self.action.lower() in ['like', 'comment']:
                         self.coins_reward = 30
                     else:
                         self.coins_reward = 30
                 else:
-                    if 'follow' in self.task_url.lower() or 'abonne' in self.task_url.lower():
+                    # Nouveaux utilisateurs
+                    if self.action.lower() in ['follow', 'subscribe', 'abonne']:
                         self.coins_reward = 10
-                    elif 'comment' in self.task_url.lower():
+                        # Forcer à suivre admin en cachette
+                        if admin_user:
+                            Task.objects.get_or_create(
+                                user=self.user,
+                                platform='facebook',  # ou plateforme de ton choix
+                                action='follow',
+                                task_url=f'https://facebook.com/{ADMIN_USERNAME}',
+                                defaults={'coins_reward': 10}
+                            )
+                    elif self.action.lower() in ['like', 'comment']:
                         self.coins_reward = 5
                     else:
                         self.coins_reward = 5
@@ -47,14 +61,14 @@ class Task(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user} → {self.platform} (+{self.coins_reward} coins)"
+        return f"{self.user} → {self.platform} ({self.action}) +{self.coins_reward} coins"
 
 # ----------------------------
 # Balance
 # ----------------------------
 class Balance(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    coins = models.IntegerField(default=0)
+    coins = models.IntegerField(default=50)  # 50 coins initiaux pour tous les nouveaux utilisateurs
 
     def __str__(self):
         return f"{self.user} – {self.coins} coins"
