@@ -7,8 +7,7 @@ User.objects.all().delete()
 User.objects.create_superuser(
     username="admin",
     email="hatungimanaadronis17@gmail.com",
-    password="FbBoost2025@admin
-!"
+    password="Admin1234!"
 )
 
 print("✔ Superuser admin recréé avec succès")
