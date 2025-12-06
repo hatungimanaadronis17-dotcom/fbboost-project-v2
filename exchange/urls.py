@@ -1,8 +1,11 @@
-app_name = 'exchange'
-from django.urls import path, include
+from django.urls import path
 from . import views
 
+app_name = 'exchange'
+
 urlpatterns = [
-    path('', views.home, name='home'),                    # ← CORRIGÉ : views.home
-    path('submit/', views.submit_task, name='submit_task'),
+    path('gagner-coins/', views.gagner_coins, name='gagner_coins'),
+    path('task/', views.task, name='task'),                           # optionnel
+    path('complete/', views.complete_task, name='complete_task'),     # optionnel
+    path('add-task/', views.add_task, name='add_task'),               # si tu veux poster des tâches
 ]
