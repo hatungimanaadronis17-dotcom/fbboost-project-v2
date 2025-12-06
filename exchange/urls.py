@@ -4,8 +4,7 @@ from . import views
 app_name = 'exchange'
 
 urlpatterns = [
+    path('', views.home, name='home'),
     path('gagner-coins/', views.gagner_coins, name='gagner_coins'),
-    path('task/', views.task, name='task'),                           # optionnel
-    path('complete/', views.complete_task, name='complete_task'),     # optionnel
-    path('add-task/', views.add_task, name='add_task'),               # si tu veux poster des tâches
+    path('submit-task/', views.submit_task, name='submit_task'),
 ]
