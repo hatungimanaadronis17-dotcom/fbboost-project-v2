@@ -6,15 +6,15 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Authentification Django (login, logout, password reset…)
+    # Authentification Django par défaut
     path('accounts/', include('django.contrib.auth.urls')),
     
-    # Tes applications
-    path('', include('users.urls')),       # page d'accueil, profil, etc.
-    path('', include('exchange.urls')),    # ici vont aller toutes les routes de boost
+    # Tes applications – CORRIGÉ : prefixes clairs et uniques
+    path('', include('users.urls')),          # ex: /, /register/, /profile/, etc.
+    path('exchange/', include('exchange.urls')),  # TOUT ce qui concerne le boost sous /exchange/
 ]
 
-# Servir les médias en développement
+# Servir les médias et static en développement
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
