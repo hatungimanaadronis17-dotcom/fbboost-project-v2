@@ -31,7 +31,7 @@
 </div>
 
 <script>
-// Fonction pour récupérer le CSRF token proprement (obligatoire en production)
+// Récupère le token CSRF
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -56,26 +56,38 @@ function select(p) {
 
 document.getElementById('task-form').onsubmit = async (e) => {
     e.preventDefault();
+    document.getElementById('result').innerHTML = '<p class="text-info">Vérification en cours...</p>';
+
     const form = new FormData(e.target);
-    const res = await fetch('/exchange/submit/', {
-        method: 'POST',
-        body: form,
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),  // Correction critique
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    });
-    const data = await res.json();
     
-    if (data.success) {
+    try {
+        const res = await fetch('/exchange/submit/', {
+            method: 'POST',
+            body: form,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('result').innerHTML = 
+                `<p class="text-success">${data.message}<br>
+                 Total : <strong>${data.total}</strong> coins</p>`;
+            // Mise à jour du solde en haut sans recharger la page
+            document.querySelector('.text-warning.fs-1').textContent = data.total;
+        } else {
+            let errorMsg = data.error || data.message || 'Erreur inconnue';
+            if (data.cooldown) errorMsg = data.error;
+            document.getElementById('result').innerHTML = 
+                `<p class="text-danger">${errorMsg}</p>`;
+        }
+    } catch (err) {
         document.getElementById('result').innerHTML = 
-            `<p class="text-success">Validé ! +${data.coins} coins<br>
-             Total : <strong>${data.total}</strong> coins</p>`;
-        // Met à jour les coins en haut sans recharger
-        document.querySelector('.text-warning.fs-1').textContent = data.total;
-    } else {
-        document.getElementById('result').innerHTML = 
-            `<p class="text-danger">${data.error || 'Erreur inconnue'}</p>`;
+            '<p class="text-danger">Erreur de connexion. Réessayez plus tard.</p>';
+        console.error(err);
     }
 };
 </script>
