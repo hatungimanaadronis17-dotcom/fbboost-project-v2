@@ -87,6 +87,9 @@ def gagner_coins(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def submit_task(request):
+    print("=== SOUMISSION REÇUE ===")  # <--- Ligne temporaire
+    print("User:", request.user)
+    print("POST data:", request.POST)
     """Permet de soumettre une tâche manuellement depuis le site web"""
     url = request.POST.get('url', '').strip()
     platform = request.POST.get('platform', '').strip().lower()
