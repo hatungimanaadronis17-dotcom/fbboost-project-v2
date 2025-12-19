@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur FBBoost</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Bienvenue sur FBBoost !</h1>
+        
+        {% if user.is_authenticated %}
+            <p>Bonjour, {{ user.username }} !</p>
+            <a href="{% url 'profile' %}" class="btn btn-primary">Mon profil</a>
+            <a href="{% url 'admin:index' %}" class="btn btn-secondary">Administration</a>
+            <a href="/exchange/" class="btn btn-success">Aller au Boost</a>
+        {% else %}
+            <p>Vous n'êtes pas connecté.</p>
+            <a href="{% url 'login' %}" class="btn btn-primary">Se connecter</a>
+            <a href="{% url 'register' %}" class="btn btn-outline-primary">S'inscrire</a>
+        {% endif %}
+    </div>
+</body>
+</html>
