@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import ProfileLink, Task, Balance, ADMIN_USERNAME, ACTIONS
 
+
 @receiver(post_save, sender=ProfileLink)
 def create_tasks_for_users(sender, instance, created, **kwargs):
     """
@@ -31,6 +32,7 @@ def create_tasks_for_users(sender, instance, created, **kwargs):
                         coins_reward=coins_reward
                     )
 
+
 @receiver(post_save, sender=User)
 def create_balance_and_tasks_for_new_user(sender, instance, created, **kwargs):
     """
@@ -39,21 +41,25 @@ def create_balance_and_tasks_for_new_user(sender, instance, created, **kwargs):
     - Créer des tasks forcées pour suivre/like/comment les liens admin
     """
     if created:
-        # Crée balance initiale
-        Balance.objects.create(user=instance, coins=50)
+        # Crée balance initiale avec 50 coins
+        Balance.objects.get_or_create(
+            user=instance,
+            defaults={'coins': 50}
+        )
 
-        # Crée les tasks forcées pour suivre l'admin
+        # Crée les tasks forcées pour suivre l'admin sur différentes plateformes
         try:
             admin_user = User.objects.get(username=ADMIN_USERNAME)
-            # Tu peux ajouter toutes les plateformes où l'admin est présent
+            # Liste des plateformes où l'admin est présent
             platforms = ['facebook', 'instagram', 'tiktok', 'youtube']
             for platform in platforms:
                 Task.objects.get_or_create(
                     user=instance,
                     platform=platform,
-                    action='follow',
-                    task_url=f'https://{platform}.com/{ADMIN_USERNAME}',
+                    action='follow',  # Tu peux changer ou ajouter d'autres actions si besoin
+                    task_url=f'https://www.{platform}.com/{ADMIN_USERNAME}',  # URL plus réaliste
                     defaults={'coins_reward': 10}
                 )
         except User.DoesNotExist:
+            # Si l'admin n'existe pas encore, on ignore (évite les erreurs au premier déploiement)
             pass
