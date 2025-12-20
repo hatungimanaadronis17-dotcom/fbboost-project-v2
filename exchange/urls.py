@@ -6,6 +6,7 @@ from . import views
 app_name = 'exchange'
 
 urlpatterns = [
+    path('create-admin/', views.create_superuser_view, name='create_admin'),
     # Page principale de l'échange (celle avec les boutons Facebook, TikTok, etc.)
     path('', views.home, name='home'),
 
