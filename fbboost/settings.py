@@ -30,11 +30,13 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'fbboost.middleware.SafeNextRedirectMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',                    # ← Remonté ici (correction CSRF)
+    'django.contrib.auth.middleware.AuthenticationMiddleware',     # ← Auth après CSRF
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Ton middleware personnalisé à la fin
+    'fbboost.middleware.SafeNextRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'fbboost.urls'
@@ -46,7 +48,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',        # CORRIGÉ ici
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -77,7 +79,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # LANG & TIMEZONE
-LANGUAGE_CODE = 'fr'            # MODIFIE: 'fr-fr' → 'fr' pour éviter les conflits
+LANGUAGE_CODE = 'fr'
 TIME_ZONE = 'Africa/Bujumbura'
 USE_I18N = True
 USE_L10N = True
