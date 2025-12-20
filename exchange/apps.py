@@ -1,3 +1,4 @@
+
 # exchange/apps.py
 from django.apps import AppConfig
 
@@ -7,5 +8,4 @@ class ExchangeConfig(AppConfig):
     name = 'exchange'
 
     def ready(self):
-        # Cette ligne charge les signals définis dans signals.py
-        import exchange.signals  # noqa: F401
+        import exchange.signals  # <-- Cette ligne charge ton signal au démarrage
