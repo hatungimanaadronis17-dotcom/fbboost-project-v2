@@ -22,13 +22,14 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile"
 
 
-# --- Création automatique du profil ---
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
+def create_or_update_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_profile(sender, instance, **kwargs):
-    instance.profile.save()
+        Profile.objects.create(
+            user=instance,
+            coins=50,     # 🎁 bonus inscription
+            boosts=0
+        )
+    else:
+        if hasattr(instance, 'profile'):
+            instance.profile.save()
