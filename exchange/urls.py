@@ -6,13 +6,12 @@ from . import views
 app_name = 'exchange'
 
 urlpatterns = [
-    path('create-admin/', views.create_superuser_view, name='create_admin'),
-    # Page principale de l'échange (celle avec les boutons Facebook, TikTok, etc.)
+    # Page principale de l'échange
     path('', views.home, name='home'),
 
-    # URL appelée par le formulaire AJAX du site web
+    # Soumission AJAX du site web
     path('submit/', views.submit_task, name='submit_task'),
 
-    # URL pour l'app Android (si tu l'utilises toujours)
+    # Pour l'app Android
     path('gagner-coins/', views.gagner_coins, name='gagner_coins'),
 ]
