@@ -15,6 +15,11 @@
             {% if user.is_authenticated %}
                 <span class="text-white me-3">Salut {{ user.username }} !</span>
                 <a href="{% url 'admin:index' %}" class="btn btn-outline-light btn-sm">Admin</a>
+                <a href="{% url 'users:profile' %}" class="btn btn-outline-light btn-sm">Profil</a>
+                <a href="{% url 'users:logout' %}" class="btn btn-outline-danger btn-sm">Déconnexion</a>
+            {% else %}
+                <a href="{% url 'users:login' %}" class="btn btn-outline-light btn-sm">Connexion</a>
+                <a href="{% url 'users:register' %}" class="btn btn-outline-light btn-sm">Inscription</a>
             {% endif %}
         </div>
     </nav>
@@ -24,12 +29,11 @@
     </div>
 
     {% if user.is_authenticated %}
-        {% if user.profile and user.profile.auto_boost %}
-            <div class="auto-boost-badge">Auto-Boost ACTIVÉ</div>
-        {% endif %}
+        <div class="auto-boost-badge position-fixed bottom-0 end-0 m-3 bg-success text-white p-3 rounded">
+            Auto-Boost ACTIVÉ
+        </div>
     {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'js/auto_boost.js' %}"></script>
 </body>
 </html>
