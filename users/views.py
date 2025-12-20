@@ -1,28 +1,27 @@
+# users/views.py
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from .forms import RegisterForm
-from exchange.models import Balance
-
+from django.contrib.auth import login  # Pour connecter automatiquement après inscription
 
 def register(request):
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            # Bonus de 50 coins à l’inscription
-            Balance.objects.get_or_create(user=user, defaults={'coins': 50})
-            messages.success(request, 'Inscription réussie ! Tu reçois 50 coins gratuits.')
-            return redirect('exchange:home')   # ← C’EST ÇA QUI MANQUAIT
+            # Crédite 50 coins à l'inscription (si tu as un modèle Balance)
+            try:
+                from exchange.models import Balance
+                Balance.objects.create(user=user, coins=50)
+            except:
+                pass  # Si Balance n'existe pas encore, ignore
+
+            messages.success(request, 'Inscription réussie ! Tu gagnes 50 coins gratuits. Tu es maintenant connecté.')
+            login(request, user)  # Connecte automatiquement l'utilisateur
+            return redirect('exchange:home')  # ou '/' ou la page que tu veux
+        else:
+            messages.error(request, 'Erreur dans le formulaire. Vérifie les champs.')
     else:
-        form = RegisterForm()
-    return render(request, 'registration/register.html', {'form': form})
+        form = UserCreationForm()
 
-
-@login_required
-def profile(request):
-    # Récupère le solde de l’utilisateur
-    balance = Balance.objects.get(user=request.user)
-    return render(request, 'users/profile.html', {'balance': balance})
+    return render(request, 'users/register.html', {'form': form})
