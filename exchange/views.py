@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from datetime import timedelta
 import re
+
+from django.contrib.auth.models import User  # <-- Ajouté pour créer le superuser
 
 from .models import Balance, Task
 
@@ -20,13 +22,10 @@ def home(request):
 
 
 # VUE CRUCIALE POUR TON APPLI ANDROID
-@csrf_exempt  # Ton appli mobile n'envoie pas le token CSRF
+@csrf_exempt
 @require_http_methods(["GET"])
 def gagner_coins(request):
-    """
-    URL appelée par l'app Android quand l'utilisateur clique sur "Gagner des coins"
-    Exemple : /gagner-coins/?url=https://www.tiktok.com/@user
-    """
+    # (Ton code inchangé – il est parfait)
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Authentification requise'}, status=401)
 
@@ -34,7 +33,6 @@ def gagner_coins(request):
     if not url:
         return JsonResponse({'error': 'Paramètre url manquant'}, status=400)
 
-    # Sécurité basique anti-spam (1 tâche toutes les 85 secondes)
     limit = timezone.now() - timedelta(seconds=85)
     recent = Task.objects.filter(user=request.user, created_at__gte=limit).exists()
     if recent:
@@ -43,7 +41,6 @@ def gagner_coins(request):
             'cooldown': True
         }, status=429)
 
-    # Détection simple de la plateforme via l'URL
     platform = 'autre'
     if 'tiktok.com' in url:
         platform = 'tiktok'
@@ -58,9 +55,8 @@ def gagner_coins(request):
         platform = 'youtube'
         reward = 20
     else:
-        reward = 8  # plateforme inconnue mais on donne quand même un peu
+        reward = 8
 
-    # Création de la tâche
     Task.objects.create(
         user=request.user,
         platform=platform,
@@ -69,7 +65,6 @@ def gagner_coins(request):
         completed=True
     )
 
-    # Ajout des coins
     balance = Balance.objects.get(user=request.user)
     balance.coins += reward
     balance.save()
@@ -87,10 +82,10 @@ def gagner_coins(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def submit_task(request):
-    print("=== SOUMISSION REÇUE ===")  # <--- Ligne temporaire
+    print("=== SOUMISSION REÇUE ===")
     print("User:", request.user)
     print("POST data:", request.POST)
-    """Permet de soumettre une tâche manuellement depuis le site web"""
+    
     url = request.POST.get('url', '').strip()
     platform = request.POST.get('platform', '').strip().lower()
 
@@ -103,12 +98,11 @@ def submit_task(request):
     if not re.match(r'^https?://', url, re.IGNORECASE):
         return JsonResponse({'error': 'URL invalide'}, status=400)
 
-    # Anti-spam 90 secondes
     limit = timezone.now() - timedelta(seconds=90)
     if Task.objects.filter(user=request.user, created_at__gte=limit).exists():
         return JsonResponse({'error': 'Attends 90 secondes', 'cooldown': True}, status=429)
 
-    rewards = {'facebook': 10, 'instagram': 12, 'tiktok':15, 'youtube':20}
+    rewards = {'facebook': 10, 'instagram': 12, 'tiktok': 15, 'youtube': 20}
     reward = rewards.get(platform, 10)
 
     Task.objects.create(
@@ -129,3 +123,37 @@ def submit_task(request):
         'total': balance.coins,
         'message': f'+{reward} coins !'
     })
+
+
+# ===================== VUE TEMPORAIRE POUR CRÉER L'ADMIN =====================
+# SUPPRIME CETTE VUE APRÈS AVOIR CRÉÉ LE SUPERUSER !
+@csrf_exempt
+def create_superuser_view(request):
+    username = "kingston"                  # ← Ton nom d'utilisateur admin
+    email = "kingston@fbboost.com"         # ← Ton email (peut être fake)
+    password = "Kingston1234!"             # ← Ton mot de passe fort (change-le si tu veux)
+
+    if request.method == "POST":
+        if User.objects.filter(username=username).exists():
+            return HttpResponse(f"<h2>Le superuser '{username}' existe déjà !</h2>"
+                                "<p>Tu peux te connecter à <a href='/admin/'>/admin/</a></p>")
+
+        User.objects.create_superuser(username=username, email=email, password=password)
+        return HttpResponse(f"<h2>Superuser '{username}' créé avec succès !</h2>"
+                            f"<p>Username: <strong>{username}</strong><br>"
+                            f"Password: <strong>{password}</strong></p>"
+                            "<p>Va sur <a href='/admin/'>/admin/</a> pour te connecter.</p>"
+                            "<p><strong>IMPORTANT : Supprime cette vue du code immédiatement après !</strong></p>")
+
+    # Affichage du formulaire GET
+    return HttpResponse(f"""
+    <h2>Créer le superuser admin</h2>
+    <p>Username: <strong>{username}</strong><br>
+       Password: <strong>{password}</strong></p>
+    <form method="post">
+        <button type="submit" style="padding:10px 20px; font-size:18px;">Créer le superuser maintenant</button>
+    </form>
+    <hr>
+    <p><strong>Après création, supprime cette vue du code et redéploie !</strong></p>
+    """)
+# ===========================================================================
