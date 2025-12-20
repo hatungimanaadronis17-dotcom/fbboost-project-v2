@@ -1,18 +1,20 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+
 {% block title %}Mon Profil{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Mon Profil</h1>
-    <div class="card shadow-lg p-4">
-        <p><strong>Username :</strong> {{ user.username }}</p>
+<div class="container mt-5 text-center">
+    <h1 class="mb-4">Mon Profil</h1>
+    <div class="card shadow-lg p-5" style="max-width: 600px; margin: auto;">
+        <p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
         <p><strong>Email :</strong> {{ user.email|default:"Non défini" }}</p>
         {% if balance %}
-            <p><strong>Tes coins :</strong> <span class="text-warning fs-3">{{ balance.coins }}</span></p>
+            <p class="fs-2"><strong>Tes coins :</strong> <span class="text-warning">{{ balance.coins }}</span></p>
         {% else %}
-            <p><strong>Tes coins :</strong> 0</p>
+            <p class="fs-2"><strong>Tes coins :</strong> 0</p>
         {% endif %}
-        <a href="{% url 'exchange:home' %}" class="btn btn-primary">Retour à l'échange</a>
+        <a href="{% url 'exchange:home' %}" class="btn btn-success btn-lg mt-3">Retour à l'échange</a>
     </div>
 </div>
 {% endblock %}
