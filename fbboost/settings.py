@@ -3,13 +3,23 @@ import os
 import dj_database_url
 from django.utils.translation import gettext_lazy as _
 
+# =========================
+# BASE DIR
+# =========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# =========================
+# SECRET & DEBUG
+# =========================
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production-please')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['*']
 
+# =========================
+# INSTALLED APPS
+# =========================
 INSTALLED_APPS = [
+    # Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -17,28 +27,36 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Tiers
     'whitenoise.runserver_nostatic',
     'crispy_forms',
     'crispy_bootstrap5',
 
+    # Mes apps
     'users',
-    'exchange',
+    'exchange.apps.ExchangeConfig',  # <-- IMPORTANT : charge ready() et signals
 ]
 
+# =========================
+# MIDDLEWARE
+# =========================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',                    # ← Remonté ici (correction CSRF)
-    'django.contrib.auth.middleware.AuthenticationMiddleware',     # ← Auth après CSRF
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    # Ton middleware personnalisé à la fin
+
+    # Middleware perso
     'fbboost.middleware.SafeNextRedirectMiddleware',
 ]
 
+# =========================
+# URLS & TEMPLATES
+# =========================
 ROOT_URLCONF = 'fbboost.urls'
 
 TEMPLATES = [
@@ -59,7 +77,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fbboost.wsgi.application'
 
-# ================= DATABASE =================
+# =========================
+# DATABASE
+# =========================
 DATABASES = {
     'default': dj_database_url.config(
         conn_max_age=600,
@@ -69,8 +89,10 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-# ============================================
 
+# =========================
+# AUTH PASSWORD VALIDATORS
+# =========================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -78,13 +100,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# =========================
 # LANG & TIMEZONE
+# =========================
 LANGUAGE_CODE = 'fr'
 TIME_ZONE = 'Africa/Bujumbura'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# =========================
+# STATIC & MEDIA
+# =========================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -93,11 +120,20 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# =========================
+# DEFAULT AUTO FIELD
+# =========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# =========================
+# CRISPY FORMS
+# =========================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# =========================
+# LOGIN / LOGOUT
+# =========================
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = '/'
