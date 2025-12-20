@@ -1,12 +1,13 @@
 from django.db import migrations, models
 import django.db.models.deletion
+from django.conf import settings
 
 class Migration(migrations.Migration):
 
     initial = True
 
     dependencies = [
-        ('users', '0001_initial'),  # ← dépendance corrigée
+        ('users', '0001_initial'),  # dépendance Users
         ('auth', '0012_alter_user_first_name_max_length'),
     ]
 
@@ -15,8 +16,8 @@ class Migration(migrations.Migration):
             name='Balance',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('coins', models.IntegerField(default=0)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='auth.user')),
+                ('coins', models.IntegerField(default=50)),  # <-- valeur par défaut 50
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -32,6 +33,10 @@ class Migration(migrations.Migration):
                     ],
                     max_length=20
                 )),
+                ('action', models.CharField(
+                    max_length=20,
+                    choices=[(a, a.capitalize()) for a in ['follow', 'subscribe', 'like', 'comment', 'abonne']]
+                )),
                 ('task_url', models.URLField(max_length=500)),
                 ('coins_reward', models.IntegerField(default=0)),
                 ('completed', models.BooleanField(default=False)),
@@ -40,7 +45,7 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(
                     on_delete=django.db.models.deletion.CASCADE,
                     related_name='tasks_done',
-                    to='auth.user'
+                    to=settings.AUTH_USER_MODEL
                 )),
             ],
         ),
@@ -60,7 +65,7 @@ class Migration(migrations.Migration):
                 ('details', models.CharField(max_length=200)),
                 ('status', models.CharField(default='pending', max_length=20)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.user')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]
