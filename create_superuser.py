@@ -1,23 +1,23 @@
 # create_superuser.py
 import os
-from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
+import django
 
-def create_superuser():
-    User = get_user_model()
-    if os.environ.get('CREATE_SUPERUSER') == 'True':
-        if not User.objects.filter(username='admin').exists():
-            User.objects.create_superuser(
-                username='admin',
-                email='admin@fbboost.com',
-                password='ton-mot-de-passe-tres-securise'
-            )
-            print("Superuser créé !")
-        else:
-            print("Superuser existe déjà")
+# Configuration Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fbboost.settings')
+django.setup()
 
-if __name__ == '__main__':
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fbboost.settings')
-    import django
-    django.setup()
-    create_superuser()
+from django.contrib.auth.models import User
+
+# Paramètres du superuser
+USERNAME = "kingston"                     # ← Change si tu veux un autre nom
+EMAIL = "kingston@fbboost.com"            # ← Ton email
+PASSWORD = "Kingston2025@fbboost"         # ← Mot de passe fort
+
+if not User.objects.filter(username=USERNAME).exists():
+    User.objects.create_superuser(USERNAME, EMAIL, PASSWORD)
+    print(f"SUPERUSER CRÉÉ AVEC SUCCÈS !")
+    print(f"Username : {USERNAME}")
+    print(f"Password : {PASSWORD}")
+    print("Tu peux maintenant te connecter à /admin/")
+else:
+    print(f"Le superuser '{USERNAME}' existe déjà.")
