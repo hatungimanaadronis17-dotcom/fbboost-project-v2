@@ -1,90 +1,43 @@
+# exchange/signals.py
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from django.apps import apps
 
-from .models import ADMIN_USERNAME, ACTIONS
-
-
-def get_models():
-    ProfileLink = apps.get_model('exchange', 'ProfileLink')
-    Task = apps.get_model('exchange', 'Task')
-    Balance = apps.get_model('exchange', 'Balance')
-    return ProfileLink, Task, Balance
+from .models import Balance, Task  # Import direct, plus besoin de get_models()
 
 
 # ==================================================
-# 1️⃣ Création automatique des tasks pour tous
-#    quand un lien admin est ajouté
-# ==================================================
-
-@receiver(post_save)
-def create_tasks_for_users(sender, instance, created, **kwargs):
-    ProfileLink, Task, Balance = get_models()
-
-    if sender != ProfileLink or not created:
-        return
-
-    users = User.objects.exclude(username=ADMIN_USERNAME)
-    tasks_to_create = []
-
-    for user in users:
-        for action in ACTIONS:
-            exists = Task.objects.filter(
-                user=user,
-                platform=instance.platform,
-                task_url=instance.url,
-                action=action
-            ).exists()
-
-            if not exists:
-                coins_reward = 10 if action in ['follow', 'subscribe', 'abonne'] else 5
-                tasks_to_create.append(
-                    Task(
-                        user=user,
-                        platform=instance.platform,
-                        action=action,
-                        task_url=instance.url,
-                        coins_reward=coins_reward
-                    )
-                )
-
-    if tasks_to_create:
-        Task.objects.bulk_create(tasks_to_create)
-
-
-# ==================================================
-# 2️⃣ Création du Balance + tasks de bienvenue
-#    à l'inscription
+# Création du Balance + tasks de bienvenue
+# à l'inscription d'un nouvel utilisateur
 # ==================================================
 
 @receiver(post_save, sender=User)
-def create_balance_and_tasks_for_new_user(sender, instance, created, **kwargs):
+def create_balance_and_welcome_tasks(sender, instance, created, **kwargs):
     if not created:
         return
 
-    ProfileLink, Task, Balance = get_models()
-
-    # --- Balance initial ---
+    # Création du Balance avec 50 coins de bienvenue
     Balance.objects.get_or_create(
         user=instance,
         defaults={'coins': 50}
     )
 
+    # Tasks de bienvenue : follow les comptes admin sur chaque plateforme
     platforms = ['facebook', 'instagram', 'tiktok', 'youtube']
+    admin_username = "Adronis4000"  # Tu peux aussi l'importer depuis models si tu veux
     tasks_to_create = []
 
     for platform in platforms:
-        task_url = f'https://www.{platform}.com/{ADMIN_USERNAME}'
+        task_url = f'https://www.{platform}.com/{admin_username}'
 
-        exists = Task.objects.filter(
+        # Évite les doublons
+        if not Task.objects.filter(
             user=instance,
             platform=platform,
             action='follow',
             task_url=task_url
-        ).exists()
-
-        if not exists:
+        ).exists():
             tasks_to_create.append(
                 Task(
                     user=instance,
