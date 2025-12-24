@@ -5,5 +5,4 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
-        # Charge les signals seulement quand l'app est prête
         import users.signals
