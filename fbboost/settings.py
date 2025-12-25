@@ -11,9 +11,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =========================
 # SECRET & DEBUG
 # =========================
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production-please')
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production-please')
+
+# En production (Render), DEBUG doit être False pour sécurité
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+# Sur Render, mieux vaut limiter les hosts, mais '*' OK pour début
+ALLOWED_HOSTS = ['*']  # Tu peux plus tard utiliser os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 # =========================
 # INSTALLED APPS
@@ -34,7 +38,7 @@ INSTALLED_APPS = [
 
     # Mes apps
     'users',
-    'exchange.apps.ExchangeConfig',  # <-- IMPORTANT : charge ready() et signals
+    'exchange.apps.ExchangeConfig',
 ]
 
 # =========================
@@ -78,17 +82,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fbboost.wsgi.application'
 
 # =========================
-# DATABASE
+# DATABASE → CORRIGÉ ET AMÉLIORÉ
 # =========================
-DATABASES = {
-    'default': dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True
-    ) if os.environ.get('DATABASE_URL') else {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Si DATABASE_URL est définie (Render → PostgreSQL), on l'utilise
+# Sinon, fallback sur SQLite (développement local)
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.parse(
+            os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # =========================
 # AUTH PASSWORD VALIDATORS
