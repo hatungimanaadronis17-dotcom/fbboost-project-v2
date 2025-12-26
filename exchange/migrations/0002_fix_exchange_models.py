@@ -22,13 +22,10 @@ class Migration(migrations.Migration):
             field=models.PositiveIntegerField(default=0),
         ),
 
-        migrations.RemoveField(
-            model_name='balance',
-            name='created_at',
-        ),
+        # ⚠️ created_at NON supprimé car colonne inexistante en base
 
         # =========================
-        # TRANSACTION (NOUVELLE TABLE)
+        # TRANSACTION
         # =========================
 
         migrations.CreateModel(
@@ -53,10 +50,6 @@ class Migration(migrations.Migration):
                     to=settings.AUTH_USER_MODEL
                 )),
             ],
-            options={
-                'verbose_name': 'Transaction',
-                'verbose_name_plural': 'Transactions',
-            },
         ),
 
         # =========================
