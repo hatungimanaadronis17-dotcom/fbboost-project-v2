@@ -2,12 +2,13 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 
+
 class Migration(migrations.Migration):
 
-    initial = True
+    # ❌ initial = True SUPPRIMÉ (CRITIQUE)
 
     dependencies = [
-        ('users', '0001_initial'),  # dépendance Users
+        ('users', '0001_initial'),
         ('auth', '0012_alter_user_first_name_max_length'),
     ]
 
@@ -16,8 +17,11 @@ class Migration(migrations.Migration):
             name='Balance',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('coins', models.IntegerField(default=50)),  # <-- valeur par défaut 50
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('coins', models.IntegerField(default=50)),
+                ('user', models.OneToOneField(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to=settings.AUTH_USER_MODEL
+                )),
             ],
         ),
         migrations.CreateModel(
@@ -25,13 +29,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('platform', models.CharField(
+                    max_length=20,
                     choices=[
                         ('facebook', 'Facebook'),
                         ('instagram', 'Instagram'),
                         ('tiktok', 'TikTok'),
-                        ('youtube', 'YouTube')
-                    ],
-                    max_length=20
+                        ('youtube', 'YouTube'),
+                    ]
                 )),
                 ('action', models.CharField(
                     max_length=20,
@@ -54,18 +58,21 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('method', models.CharField(
+                    max_length=20,
                     choices=[
                         ('paypal', 'PayPal'),
                         ('interac', 'Interac e-Transfer'),
                         ('crypto', 'Crypto (USDT/BTC)'),
-                    ],
-                    max_length=20
+                    ]
                 )),
-                ('amount_cad', models.DecimalField(decimal_places=2, max_digits=10)),
+                ('amount_cad', models.DecimalField(max_digits=10, decimal_places=2)),
                 ('details', models.CharField(max_length=200)),
                 ('status', models.CharField(default='pending', max_length=20)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to=settings.AUTH_USER_MODEL
+                )),
             ],
         ),
     ]
