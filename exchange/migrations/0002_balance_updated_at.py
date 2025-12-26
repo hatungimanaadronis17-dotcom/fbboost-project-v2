@@ -1,3 +1,4 @@
+
 # exchange/migrations/0002_balance_updated_at.py
 
 from django.db import migrations, models
@@ -6,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exchange', '0001_initial'),  # Doit correspondre au nom de ta migration initiale
+        ('exchange', '0001_initial'),  # Dépend de ta migration initiale qui a créé Balance, Task, Withdrawal
     ]
 
     operations = [
@@ -14,13 +15,11 @@ class Migration(migrations.Migration):
             model_name='balance',
             name='updated_at',
             field=models.DateTimeField(auto_now=True, null=True, blank=True),
-            preserve_default=False,
         ),
-        # Optionnel mais fortement recommandé : ajouter created_at en même temps
+        # Optionnel mais recommandé : date de création
         migrations.AddField(
             model_name='balance',
             name='created_at',
             field=models.DateTimeField(auto_now_add=True, null=True, blank=True),
-            preserve_default=False,
         ),
     ]
