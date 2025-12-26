@@ -1,13 +1,14 @@
 from django.db import models, transaction
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+
+User = get_user_model()
 
 # =========================
 # CONSTANTES
 # =========================
 
-ADMIN_USERNAME = "Adronis4000"
 COINS_TO_CAD_RATE = 100  # 100 coins = 1 CAD
 
 PLATEFORMES = [
@@ -40,11 +41,15 @@ TRANSACTION_TYPES = [
 ]
 
 # =========================
-# BALANCE / WALLET
+# BALANCE
 # =========================
 
 class Balance(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='balance')
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='balance'
+    )
     coins = models.PositiveIntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -60,14 +65,18 @@ class Balance(models.Model):
 # =========================
 
 class Transaction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='transactions'
+    )
     tx_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
     coins = models.IntegerField()
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.user.username} | {self.tx_type} | {self.coins} coins"
+        return f"{self.user.username} | {self.tx_type} | {self.coins}"
 
 
 # =========================
@@ -75,7 +84,11 @@ class Transaction(models.Model):
 # =========================
 
 class Task(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='tasks'
+    )
     platform = models.CharField(max_length=20, choices=PLATEFORMES)
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
     task_url = models.URLField(max_length=500)
@@ -89,7 +102,7 @@ class Task(models.Model):
             return
 
         with transaction.atomic():
-            balance = self.user.balance
+            balance, _ = Balance.objects.get_or_create(user=self.user)
             balance.coins += self.coins_reward
             balance.save()
 
@@ -97,7 +110,7 @@ class Task(models.Model):
                 user=self.user,
                 tx_type='credit',
                 coins=self.coins_reward,
-                description=f"Reward task {self.platform}"
+                description=f"Task reward ({self.platform})"
             )
 
             self.validated = True
@@ -115,11 +128,20 @@ class Withdrawal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     method = models.CharField(max_length=20, choices=METHODES)
     coins_amount = models.PositiveIntegerField()
-    amount_cad = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    amount_cad = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if not self.amount_cad:
+        if self.amount_cad is None:
             self.amount_cad = self.coins_amount / COINS_TO_CAD_RATE
         super().save(*args, **kwargs)
