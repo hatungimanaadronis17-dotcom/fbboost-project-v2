@@ -5,8 +5,6 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    # ❌ initial = True SUPPRIMÉ (CRITIQUE)
-
     dependencies = [
         ('users', '0001_initial'),
     ]
