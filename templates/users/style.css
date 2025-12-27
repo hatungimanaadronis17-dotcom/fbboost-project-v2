@@ -6,23 +6,29 @@
 }
 
 .platform-section {
+    margin-bottom: 15px;
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.platform-toggle {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: left;
     color: #fff;
 }
 
-.platform-section h3 {
-    margin-bottom: 10px;
+.platform-tasks {
+    display: none; /* Collapsable */
+    padding: 10px;
+    background-color: #f9f9f9;
 }
 
-/* Couleurs par plateforme */
-.platform-section.tiktok { background: #010101; } /* noir */
-.platform-section.facebook { background: #1877f2; }
-.platform-section.instagram { background: #c13584; }
-.platform-section.youtube { background: #ff0000; }
-
-.platform-section form input[type="url"] {
+.platform-tasks input[type="url"] {
     width: 100%;
     padding: 8px;
     margin: 5px 0;
@@ -30,26 +36,31 @@
     border: 1px solid #ccc;
 }
 
-.platform-section form button {
+.platform-tasks button {
     width: 100%;
     padding: 10px;
     margin-top: 8px;
     border: none;
     border-radius: 5px;
-    background: #fff;
-    color: inherit;
+    background-color: #555;
+    color: #fff;
     font-weight: bold;
     cursor: pointer;
 }
 
-.platform-section form button:hover {
-    opacity: 0.9;
+.platform-tasks button:hover {
+    background-color: #333;
 }
+
+/* Couleurs plateformes */
+.platform-section.tiktok .platform-toggle { background-color: #010101; }
+.platform-section.facebook .platform-toggle { background-color: #1877f2; }
+.platform-section.instagram .platform-toggle { background-color: #c13584; }
+.platform-section.youtube .platform-toggle { background-color: #ff0000; }
 
 /* Déconnexion */
 .logout-section {
     margin-top: 20px;
-    text-align: center;
 }
 
 .btn-logout {
@@ -69,7 +80,7 @@
 
 /* Responsive mobile */
 @media (max-width: 500px) {
-    .platform-section { padding: 12px; }
-    .platform-section form input[type="url"] { padding: 6px; }
-    .platform-section form button { padding: 8px; }
+    .platform-toggle { font-size: 14px; padding: 10px; }
+    .platform-tasks input[type="url"] { padding: 6px; }
+    .platform-tasks button { padding: 8px; }
 }
