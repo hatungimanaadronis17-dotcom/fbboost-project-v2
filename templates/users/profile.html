@@ -96,19 +96,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
 {% block styles %}
 <style>
-.profile-container {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 10px;
+/* Fond général et texte */
+body, .profile-container {
+    background-color: #121212; /* Fond sombre */
+    color: #ffffff;           /* Texte blanc */
     font-family: Arial, sans-serif;
 }
 
+/* Les boutons plateformes restent colorés */
+.platform-section.tiktok .platform-toggle { background-color: #010101; }
+.platform-section.facebook .platform-toggle { background-color: #1877f2; }
+.platform-section.instagram .platform-toggle { background-color: #c13584; }
+.platform-section.youtube .platform-toggle { background-color: #ff0000; }
+
+/* Sections plateformes */
 .platform-section {
     margin-bottom: 15px;
     border-radius: 10px;
     overflow: hidden;
 }
 
+/* Titre boutons */
 .platform-toggle {
     width: 100%;
     padding: 12px;
@@ -120,10 +128,11 @@ document.addEventListener("DOMContentLoaded", function() {
     color: #fff;
 }
 
+/* Tâches */
 .platform-tasks {
-    display: none; /* Collapsable */
+    display: none;
     padding: 10px;
-    background-color: #f9f9f9;
+    background-color: #1e1e1e; /* Fond gris foncé */
 }
 
 .platform-tasks input[type="url"] {
@@ -131,7 +140,9 @@ document.addEventListener("DOMContentLoaded", function() {
     padding: 8px;
     margin: 5px 0;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #555;
+    background-color: #2b2b2b;
+    color: #fff;
 }
 
 .platform-tasks button {
@@ -149,12 +160,6 @@ document.addEventListener("DOMContentLoaded", function() {
 .platform-tasks button:hover {
     background-color: #333;
 }
-
-/* Couleurs plateformes */
-.platform-section.tiktok .platform-toggle { background-color: #010101; }
-.platform-section.facebook .platform-toggle { background-color: #1877f2; }
-.platform-section.instagram .platform-toggle { background-color: #c13584; }
-.platform-section.youtube .platform-toggle { background-color: #ff0000; }
 
 /* Déconnexion */
 .logout-section {
