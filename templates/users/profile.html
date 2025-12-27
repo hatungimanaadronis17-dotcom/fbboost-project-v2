@@ -1,20 +1,61 @@
-{% extends "base.html" %}
-{% load crispy_forms_tags %}
+<div class="profile-container">
 
-{% block title %}Mon Profil{% endblock %}
+    <h2>Choisissez l'option :</h2>
 
-{% block content %}
-<div class="container mt-5 text-center">
-    <h1 class="mb-4">Mon Profil</h1>
-    <div class="card shadow-lg p-5" style="max-width: 600px; margin: auto;">
-        <p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
-        <p><strong>Email :</strong> {{ user.email|default:"Non défini" }}</p>
-        {% if balance %}
-            <p class="fs-2"><strong>Tes coins :</strong> <span class="text-warning">{{ balance.coins }}</span></p>
-        {% else %}
-            <p class="fs-2"><strong>Tes coins :</strong> 0</p>
-        {% endif %}
-        <a href="{% url 'exchange:home' %}" class="btn btn-success btn-lg mt-3">Retour à l'échange</a>
+    <!-- TIKTOK -->
+    <div class="platform-section tiktok">
+        <h3>TikTok</h3>
+        <form method="post" action="{% url 'exchange:submit_task' %}">
+            {% csrf_token %}
+            <input type="url" name="tiktok_like_link" placeholder="Échange de likes ? Lien vidéo" required>
+            <input type="url" name="tiktok_subscribe_link" placeholder="Échange d'abonnés ? Lien profil" required>
+            <input type="url" name="tiktok_comment_link" placeholder="Échange de commentaires ? Lien vidéo" required>
+            <button type="submit">Soumettre TikTok</button>
+        </form>
     </div>
+
+    <!-- FACEBOOK -->
+    <div class="platform-section facebook">
+        <h3>Facebook</h3>
+        <form method="post" action="{% url 'exchange:submit_task' %}">
+            {% csrf_token %}
+            <input type="url" name="facebook_like_link" placeholder="Échange de likes ? Lien post" required>
+            <input type="url" name="facebook_subscribe_link" placeholder="Échange d'abonnés ? Lien profil/page" required>
+            <input type="url" name="facebook_comment_link" placeholder="Échange de commentaires ? Lien post" required>
+            <button type="submit">Soumettre Facebook</button>
+        </form>
+    </div>
+
+    <!-- INSTAGRAM -->
+    <div class="platform-section instagram">
+        <h3>Instagram</h3>
+        <form method="post" action="{% url 'exchange:submit_task' %}">
+            {% csrf_token %}
+            <input type="url" name="instagram_like_link" placeholder="Échange de likes ? Lien post" required>
+            <input type="url" name="instagram_subscribe_link" placeholder="Échange d'abonnés ? Lien profil" required>
+            <input type="url" name="instagram_comment_link" placeholder="Échange de commentaires ? Lien post" required>
+            <button type="submit">Soumettre Instagram</button>
+        </form>
+    </div>
+
+    <!-- YOUTUBE -->
+    <div class="platform-section youtube">
+        <h3>YouTube</h3>
+        <form method="post" action="{% url 'exchange:submit_task' %}">
+            {% csrf_token %}
+            <input type="url" name="youtube_like_link" placeholder="Échange de likes ? Lien vidéo" required>
+            <input type="url" name="youtube_subscribe_link" placeholder="Échange d'abonnés ? Lien chaîne" required>
+            <input type="url" name="youtube_comment_link" placeholder="Échange de commentaires ? Lien vidéo" required>
+            <button type="submit">Soumettre YouTube</button>
+        </form>
+    </div>
+
+    <!-- BOUTON DÉCONNEXION -->
+    <div class="logout-section">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Déconnexion</button>
+        </form>
+    </div>
+
 </div>
-{% endblock %}
