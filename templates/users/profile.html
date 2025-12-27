@@ -1,61 +1,67 @@
 <div class="profile-container">
-
     <h2>Choisissez l'option :</h2>
 
-    <!-- TIKTOK -->
+    <!-- TikTok -->
     <div class="platform-section tiktok">
-        <h3>TikTok</h3>
-        <form method="post" action="{% url 'exchange:submit_task' %}">
-            {% csrf_token %}
-            <input type="url" name="tiktok_like_link" placeholder="Échange de likes ? Lien vidéo" required>
-            <input type="url" name="tiktok_subscribe_link" placeholder="Échange d'abonnés ? Lien profil" required>
-            <input type="url" name="tiktok_comment_link" placeholder="Échange de commentaires ? Lien vidéo" required>
-            <button type="submit">Soumettre TikTok</button>
-        </form>
+        <button class="platform-toggle">TikTok</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="tiktok_like_link" placeholder="Échange de likes ? Lien vidéo">
+                <input type="url" name="tiktok_subscribe_link" placeholder="Échange d'abonnés ? Lien profil">
+                <input type="url" name="tiktok_comment_link" placeholder="Échange de commentaires ? Lien vidéo">
+                <button type="submit">Soumettre TikTok</button>
+            </form>
+        </div>
     </div>
 
-    <!-- FACEBOOK -->
+    <!-- Facebook -->
     <div class="platform-section facebook">
-        <h3>Facebook</h3>
-        <form method="post" action="{% url 'exchange:submit_task' %}">
-            {% csrf_token %}
-            <input type="url" name="facebook_like_link" placeholder="Échange de likes ? Lien post" required>
-            <input type="url" name="facebook_subscribe_link" placeholder="Échange d'abonnés ? Lien profil/page" required>
-            <input type="url" name="facebook_comment_link" placeholder="Échange de commentaires ? Lien post" required>
-            <button type="submit">Soumettre Facebook</button>
-        </form>
+        <button class="platform-toggle">Facebook</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="facebook_like_link" placeholder="Échange de likes ? Lien post">
+                <input type="url" name="facebook_subscribe_link" placeholder="Échange d'abonnés ? Lien profil/page">
+                <input type="url" name="facebook_comment_link" placeholder="Échange de commentaires ? Lien post">
+                <button type="submit">Soumettre Facebook</button>
+            </form>
+        </div>
     </div>
 
-    <!-- INSTAGRAM -->
+    <!-- Instagram -->
     <div class="platform-section instagram">
-        <h3>Instagram</h3>
-        <form method="post" action="{% url 'exchange:submit_task' %}">
-            {% csrf_token %}
-            <input type="url" name="instagram_like_link" placeholder="Échange de likes ? Lien post" required>
-            <input type="url" name="instagram_subscribe_link" placeholder="Échange d'abonnés ? Lien profil" required>
-            <input type="url" name="instagram_comment_link" placeholder="Échange de commentaires ? Lien post" required>
-            <button type="submit">Soumettre Instagram</button>
-        </form>
+        <button class="platform-toggle">Instagram</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="instagram_like_link" placeholder="Échange de likes ? Lien post">
+                <input type="url" name="instagram_subscribe_link" placeholder="Échange d'abonnés ? Lien profil">
+                <input type="url" name="instagram_comment_link" placeholder="Échange de commentaires ? Lien post">
+                <button type="submit">Soumettre Instagram</button>
+            </form>
+        </div>
     </div>
 
-    <!-- YOUTUBE -->
+    <!-- YouTube -->
     <div class="platform-section youtube">
-        <h3>YouTube</h3>
-        <form method="post" action="{% url 'exchange:submit_task' %}">
-            {% csrf_token %}
-            <input type="url" name="youtube_like_link" placeholder="Échange de likes ? Lien vidéo" required>
-            <input type="url" name="youtube_subscribe_link" placeholder="Échange d'abonnés ? Lien chaîne" required>
-            <input type="url" name="youtube_comment_link" placeholder="Échange de commentaires ? Lien vidéo" required>
-            <button type="submit">Soumettre YouTube</button>
-        </form>
+        <button class="platform-toggle">YouTube</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="youtube_like_link" placeholder="Échange de likes ? Lien vidéo">
+                <input type="url" name="youtube_subscribe_link" placeholder="Échange d'abonnés ? Lien chaîne">
+                <input type="url" name="youtube_comment_link" placeholder="Échange de commentaires ? Lien vidéo">
+                <button type="submit">Soumettre YouTube</button>
+            </form>
+        </div>
     </div>
 
-    <!-- BOUTON DÉCONNEXION -->
+    <!-- Déconnexion -->
     <div class="logout-section">
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="btn-logout">Déconnexion</button>
         </form>
     </div>
-
 </div>
