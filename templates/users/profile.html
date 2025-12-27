@@ -1,31 +1,186 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Gagner des Coins{% endblock %}
+
+{% block title %}Profil{% endblock %}
 
 {% block content %}
 <div class="profile-container mt-3">
 
-  <h2>Choisissez l'option :</h2>
+    <h2>Choisissez l'option :</h2>
 
-  {% for platform in platforms %}
-    <div class="platform-section {{ platform.name|lower }}">
-      <button class="platform-toggle">{{ platform.display_name }}</button>
-      <div class="platform-tasks">
-        <form method="post" action="{% url 'exchange:submit_task' %}">
-          {% csrf_token %}
-          {% for action in platform.actions %}
-            <input type="url" name="{{ platform.name }}_{{ action.name }}_link"
-                   placeholder="{{ action.label }}">
-          {% endfor %}
-          <button type="submit">Soumettre {{ platform.display_name }}</button>
-        </form>
-      </div>
+    <!-- TikTok -->
+    <div class="platform-section tiktok">
+        <button type="button" class="platform-toggle">TikTok</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="tiktok_like_link" placeholder="Échange de likes ? Lien vidéo">
+                <input type="url" name="tiktok_subscribe_link" placeholder="Échange d'abonnés ? Lien profil">
+                <input type="url" name="tiktok_comment_link" placeholder="Échange de commentaires ? Lien vidéo">
+                <button type="submit">Soumettre TikTok</button>
+            </form>
+        </div>
     </div>
-  {% endfor %}
+
+    <!-- Facebook -->
+    <div class="platform-section facebook">
+        <button type="button" class="platform-toggle">Facebook</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="facebook_like_link" placeholder="Échange de likes ? Lien post">
+                <input type="url" name="facebook_subscribe_link" placeholder="Échange d'abonnés ? Lien profil/page">
+                <input type="url" name="facebook_comment_link" placeholder="Échange de commentaires ? Lien post">
+                <button type="submit">Soumettre Facebook</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instagram -->
+    <div class="platform-section instagram">
+        <button type="button" class="platform-toggle">Instagram</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="instagram_like_link" placeholder="Échange de likes ? Lien post">
+                <input type="url" name="instagram_subscribe_link" placeholder="Échange d'abonnés ? Lien profil">
+                <input type="url" name="instagram_comment_link" placeholder="Échange de commentaires ? Lien post">
+                <button type="submit">Soumettre Instagram</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- YouTube -->
+    <div class="platform-section youtube">
+        <button type="button" class="platform-toggle">YouTube</button>
+        <div class="platform-tasks">
+            <form method="post" action="{% url 'exchange:submit_task' %}">
+                {% csrf_token %}
+                <input type="url" name="youtube_like_link" placeholder="Échange de likes ? Lien vidéo">
+                <input type="url" name="youtube_subscribe_link" placeholder="Échange d'abonnés ? Lien chaîne">
+                <input type="url" name="youtube_comment_link" placeholder="Échange de commentaires ? Lien vidéo">
+                <button type="submit">Soumettre YouTube</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Déconnexion -->
+    <div class="logout-section">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Déconnexion</button>
+        </form>
+    </div>
 
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'js/profile.js' %}"></script>
+<script>
+// Déplier/replier les sections plateformes
+document.addEventListener("DOMContentLoaded", function() {
+    const toggles = document.querySelectorAll(".platform-toggle");
+    toggles.forEach(btn => {
+        btn.addEventListener("click", function() {
+            const tasks = this.nextElementSibling;
+            if(tasks.style.display === "block") {
+                tasks.style.display = "none";
+            } else {
+                tasks.style.display = "block";
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+.profile-container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.platform-section {
+    margin-bottom: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.platform-toggle {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: left;
+    color: #fff;
+}
+
+.platform-tasks {
+    display: none; /* Collapsable */
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.platform-tasks input[type="url"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.platform-tasks button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #555;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.platform-tasks button:hover {
+    background-color: #333;
+}
+
+/* Couleurs plateformes */
+.platform-section.tiktok .platform-toggle { background-color: #010101; }
+.platform-section.facebook .platform-toggle { background-color: #1877f2; }
+.platform-section.instagram .platform-toggle { background-color: #c13584; }
+.platform-section.youtube .platform-toggle { background-color: #ff0000; }
+
+/* Déconnexion */
+.logout-section {
+    margin-top: 20px;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 12px;
+    background: #555;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background: #333;
+}
+
+/* Responsive mobile */
+@media (max-width: 500px) {
+    .platform-toggle { font-size: 14px; padding: 10px; }
+    .platform-tasks input[type="url"] { padding: 6px; }
+    .platform-tasks button { padding: 8px; }
+}
+</style>
 {% endblock %}
