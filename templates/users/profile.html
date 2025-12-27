@@ -1,67 +1,30 @@
-<div class="profile-container">
-    <h2>Choisissez l'option :</h2>
+{% extends "base.html" %}
+{% block title %}Gagner des Coins{% endblock %}
 
-    <!-- TikTok -->
-    <div class="platform-section tiktok">
-        <button class="platform-toggle">TikTok</button>
-        <div class="platform-tasks">
-            <form method="post" action="{% url 'exchange:submit_task' %}">
-                {% csrf_token %}
-                <input type="url" name="tiktok_like_link" placeholder="Échange de likes ? Lien vidéo">
-                <input type="url" name="tiktok_subscribe_link" placeholder="Échange d'abonnés ? Lien profil">
-                <input type="url" name="tiktok_comment_link" placeholder="Échange de commentaires ? Lien vidéo">
-                <button type="submit">Soumettre TikTok</button>
-            </form>
-        </div>
-    </div>
+{% block content %}
+<div class="profile-container mt-3">
 
-    <!-- Facebook -->
-    <div class="platform-section facebook">
-        <button class="platform-toggle">Facebook</button>
-        <div class="platform-tasks">
-            <form method="post" action="{% url 'exchange:submit_task' %}">
-                {% csrf_token %}
-                <input type="url" name="facebook_like_link" placeholder="Échange de likes ? Lien post">
-                <input type="url" name="facebook_subscribe_link" placeholder="Échange d'abonnés ? Lien profil/page">
-                <input type="url" name="facebook_comment_link" placeholder="Échange de commentaires ? Lien post">
-                <button type="submit">Soumettre Facebook</button>
-            </form>
-        </div>
-    </div>
+  <h2>Choisissez l'option :</h2>
 
-    <!-- Instagram -->
-    <div class="platform-section instagram">
-        <button class="platform-toggle">Instagram</button>
-        <div class="platform-tasks">
-            <form method="post" action="{% url 'exchange:submit_task' %}">
-                {% csrf_token %}
-                <input type="url" name="instagram_like_link" placeholder="Échange de likes ? Lien post">
-                <input type="url" name="instagram_subscribe_link" placeholder="Échange d'abonnés ? Lien profil">
-                <input type="url" name="instagram_comment_link" placeholder="Échange de commentaires ? Lien post">
-                <button type="submit">Soumettre Instagram</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- YouTube -->
-    <div class="platform-section youtube">
-        <button class="platform-toggle">YouTube</button>
-        <div class="platform-tasks">
-            <form method="post" action="{% url 'exchange:submit_task' %}">
-                {% csrf_token %}
-                <input type="url" name="youtube_like_link" placeholder="Échange de likes ? Lien vidéo">
-                <input type="url" name="youtube_subscribe_link" placeholder="Échange d'abonnés ? Lien chaîne">
-                <input type="url" name="youtube_comment_link" placeholder="Échange de commentaires ? Lien vidéo">
-                <button type="submit">Soumettre YouTube</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Déconnexion -->
-    <div class="logout-section">
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn-logout">Déconnexion</button>
+  {% for platform in platforms %}
+    <div class="platform-section {{ platform.name|lower }}">
+      <button class="platform-toggle">{{ platform.display_name }}</button>
+      <div class="platform-tasks">
+        <form method="post" action="{% url 'exchange:submit_task' %}">
+          {% csrf_token %}
+          {% for action in platform.actions %}
+            <input type="url" name="{{ platform.name }}_{{ action.name }}_link"
+                   placeholder="{{ action.label }}">
+          {% endfor %}
+          <button type="submit">Soumettre {{ platform.display_name }}</button>
         </form>
+      </div>
     </div>
+  {% endfor %}
+
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}
