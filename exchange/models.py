@@ -2,6 +2,7 @@ from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.db import models
 
 # =========================
 # CONSTANTES
@@ -40,8 +41,6 @@ TRANSACTION_TYPES = [
 # =========================
 # BALANCE / WALLET
 # =========================
-from django.db import models
-from django.contrib.auth.models import User
 
 class Balance(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
