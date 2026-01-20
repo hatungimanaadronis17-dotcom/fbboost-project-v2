@@ -42,7 +42,7 @@ TRANSACTION_TYPES = [
 # =========================
 class Balance(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='balance')
-    coins = models.PositiveIntegerField(default=0)
+    coins = models.PositiveIntegerField(default=50)
 
     def coins_to_cad(self):
         return self.coins / COINS_TO_CAD_RATE
