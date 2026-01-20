@@ -40,16 +40,15 @@ TRANSACTION_TYPES = [
 # =========================
 # BALANCE / WALLET
 # =========================
-class Balance(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='balance')
-    coins = models.PositiveIntegerField(default=50)
+from django.db import models
+from django.contrib.auth.models import User
 
-    def coins_to_cad(self):
-        return self.coins / COINS_TO_CAD_RATE
+class Balance(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    coins = models.PositiveIntegerField(default=50)  # 50 coins gratuits à l'inscription
 
     def __str__(self):
         return f"{self.user.username} - {self.coins} coins"
-
 # =========================
 # TRANSACTIONS
 # =========================
