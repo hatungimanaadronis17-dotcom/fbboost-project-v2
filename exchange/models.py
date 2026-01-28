@@ -46,10 +46,10 @@ class Balance(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        related_name='balance'          # ← important pour request.user.balance
+        related_name='balance'
     )
     coins = models.PositiveIntegerField(
-        default=50,                     # 50 coins gratuits à l'inscription
+        default=50,
         verbose_name=_("Coins")
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -79,7 +79,7 @@ class Transaction(models.Model):
     )
     coins = models.IntegerField(
         verbose_name=_("Coins")
-    )  # Peut être négatif pour les débits/retraits
+    )
     description = models.CharField(
         max_length=255,
         verbose_name=_("Description")
@@ -152,10 +152,12 @@ class Task(models.Model):
     def validate_reward(self):
         """Valide la tâche et crédite les coins (idempotent)"""
         if self.validated:
-            return False  # déjà validée
+            return False
+
+        # Import local pour éviter l'import circulaire au chargement du module
+        from .models import Balance, Transaction
 
         with transaction.atomic():
-            # On recharge l'objet pour éviter les race conditions
             balance = Balance.objects.select_for_update().get(user=self.user)
 
             balance.coins += self.coins_reward
@@ -224,9 +226,7 @@ class Withdrawal(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is None:  # Création uniquement
-            # Conversion automatique seulement à la création
             self.amount_cad = self.coins_amount / COINS_TO_CAD_RATE
-            # On peut aussi ajouter ici une vérification : self.coins_amount >= MIN_WITHDRAWAL
         super().save(*args, **kwargs)
 
     def __str__(self):
