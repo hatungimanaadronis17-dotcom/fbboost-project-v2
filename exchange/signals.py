@@ -6,12 +6,6 @@ from django.contrib.auth.models import User
 
 from .models import Balance, Task  # Import direct, plus besoin de get_models()
 
-
-# ==================================================
-# Création du Balance + tasks de bienvenue
-# à l'inscription d'un nouvel utilisateur
-# ==================================================
-
 @receiver(post_save, sender=User)
 def create_balance_and_welcome_tasks(sender, instance, created, **kwargs):
     if not created:
