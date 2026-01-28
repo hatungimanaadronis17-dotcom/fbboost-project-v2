@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}Inscription gratuite{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -9,13 +10,41 @@
             <div class="card shadow-lg">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4">Inscription = 50 coins gratuits</h2>
+
                     <form method="post">
                         {% csrf_token %}
                         {{ form|crispy }}
-                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">S'inscrire & Gagner 50 coins</button>
+
+                        <!-- Checkbox obligatoire : CGU / Politique de confidentialité -->
+                        <div class="form-check mt-4 mb-4">
+                            <input type="checkbox" 
+                                   class="form-check-input" 
+                                   id="accept_terms" 
+                                   name="accept_terms" 
+                                   required>
+                            <label class="form-check-label" for="accept_terms">
+                                J'accepte les <a href="/terms/" target="_blank">conditions d'utilisation</a> 
+                                et la <a href="/privacy/" target="_blank">politique de confidentialité</a>
+                            </label>
+                        </div>
+
+                        <!-- Message d'erreur si non cochée -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger mt-3">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-2">
+                            S'inscrire & Gagner 50 coins
+                        </button>
                     </form>
-                    <p class="text-center mt-3">
-                        Déjà inscrit ? <a href="{% url 'users:login' %}">Se connecter</a>
+
+                    <p class="text-center mt-4">
+                        Déjà inscrit ? 
+                        <a href="{% url 'users:login' %}" class="text-primary fw-bold">
+                            Se connecter
+                        </a>
                     </p>
                 </div>
             </div>
