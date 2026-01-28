@@ -15,7 +15,7 @@ from .models import Balance, Task
 @login_required(login_url='/accounts/login/')
 def home(request):
     """Page d'accueil de l'échange (affiche le solde)"""
-    balance, _ = Balance.objects.get_or_create(user=request.user, defaults={'coins': 0})
+    balance, _ = Balance.objects.get_or_create(user=request.user, defaults={'coins': 50})
     return render(request, 'exchange/home.html', {
         'balance': balance
     })
@@ -123,37 +123,3 @@ def submit_task(request):
         'total': balance.coins,
         'message': f'+{reward} coins !'
     })
-
-
-# ===================== VUE TEMPORAIRE POUR CRÉER L'ADMIN =====================
-# SUPPRIME CETTE VUE APRÈS AVOIR CRÉÉ LE SUPERUSER !
-@csrf_exempt
-def create_superuser_view(request):
-    username = "kingston"                  # ← Ton nom d'utilisateur admin
-    email = "kingston@fbboost.com"         # ← Ton email (peut être fake)
-    password = "Kingston1234!"             # ← Ton mot de passe fort (change-le si tu veux)
-
-    if request.method == "POST":
-        if User.objects.filter(username=username).exists():
-            return HttpResponse(f"<h2>Le superuser '{username}' existe déjà !</h2>"
-                                "<p>Tu peux te connecter à <a href='/admin/'>/admin/</a></p>")
-
-        User.objects.create_superuser(username=username, email=email, password=password)
-        return HttpResponse(f"<h2>Superuser '{username}' créé avec succès !</h2>"
-                            f"<p>Username: <strong>{username}</strong><br>"
-                            f"Password: <strong>{password}</strong></p>"
-                            "<p>Va sur <a href='/admin/'>/admin/</a> pour te connecter.</p>"
-                            "<p><strong>IMPORTANT : Supprime cette vue du code immédiatement après !</strong></p>")
-
-    # Affichage du formulaire GET
-    return HttpResponse(f"""
-    <h2>Créer le superuser admin</h2>
-    <p>Username: <strong>{username}</strong><br>
-       Password: <strong>{password}</strong></p>
-    <form method="post">
-        <button type="submit" style="padding:10px 20px; font-size:18px;">Créer le superuser maintenant</button>
-    </form>
-    <hr>
-    <p><strong>Après création, supprime cette vue du code et redéploie !</strong></p>
-    """)
-# ===========================================================================
