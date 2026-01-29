@@ -1,7 +1,9 @@
 from django.db import models, transaction
-from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 
 # =========================
@@ -40,24 +42,33 @@ TRANSACTION_TYPES = [
 
 
 # =========================
-# BALANCE / WALLET
+# BALANCE / WALLET (table: exchange_balance)
 # =========================
 class Balance(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        related_name='balance'
+        related_name='balance',
+        verbose_name=_("Utilisateur")
     )
     coins = models.PositiveIntegerField(
-        default=50,
+        default=50,  # ← 50 coins offerts à la création
         verbose_name=_("Coins")
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("Créé le")
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_("Mis à jour le")
+    )
 
     class Meta:
-        verbose_name = _("Balance")
-        verbose_name_plural = _("Balances")
+        verbose_name = _("Solde")
+        verbose_name_plural = _("Soldes")
+        ordering = ['-created_at']
+        # db_table = 'exchange_balance'   # ← optionnel, Django le fait déjà automatiquement
 
     def __str__(self):
         return f"{self.user.username} – {self.coins} coins"
@@ -70,16 +81,15 @@ class Transaction(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='transactions'
+        related_name='transactions',
+        verbose_name=_("Utilisateur")
     )
     tx_type = models.CharField(
         max_length=20,
         choices=TRANSACTION_TYPES,
         verbose_name=_("Type")
     )
-    coins = models.IntegerField(
-        verbose_name=_("Coins")
-    )
+    coins = models.IntegerField(verbose_name=_("Coins"))
     description = models.CharField(
         max_length=255,
         verbose_name=_("Description")
@@ -100,13 +110,14 @@ class Transaction(models.Model):
 
 
 # =========================
-# TASKS
+# TASKS (tâches à accomplir)
 # =========================
 class Task(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='tasks'
+        related_name='tasks',
+        verbose_name=_("Utilisateur")
     )
     platform = models.CharField(
         max_length=20,
@@ -154,9 +165,6 @@ class Task(models.Model):
         if self.validated:
             return False
 
-        # Import local pour éviter l'import circulaire au chargement du module
-        from .models import Balance, Transaction
-
         with transaction.atomic():
             balance = Balance.objects.select_for_update().get(user=self.user)
 
@@ -188,16 +196,15 @@ class Withdrawal(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='withdrawals'
+        related_name='withdrawals',
+        verbose_name=_("Utilisateur")
     )
     method = models.CharField(
         max_length=20,
         choices=METHODES,
         verbose_name=_("Méthode")
     )
-    coins_amount = models.PositiveIntegerField(
-        verbose_name=_("Montant en coins")
-    )
+    coins_amount = models.PositiveIntegerField(verbose_name=_("Montant en coins"))
     amount_cad = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -225,9 +232,24 @@ class Withdrawal(models.Model):
         verbose_name_plural = _("Retraits")
 
     def save(self, *args, **kwargs):
-        if self.pk is None:  # Création uniquement
+        if self.pk is None:  # seulement à la création
             self.amount_cad = self.coins_amount / COINS_TO_CAD_RATE
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} – {self.coins_amount} coins → {self.amount_cad}$ CAD ({self.status})"
+
+
+# =========================
+# SIGNAL : Création auto du solde à 50 coins lors de l'inscription
+# =========================
+@receiver(post_save, sender=User)
+def create_user_balance(sender, instance, created, **kwargs):
+    """
+    Crée automatiquement un objet Balance avec 50 coins
+    quand un nouvel utilisateur est créé.
+    """
+    if created:
+        Balance.objects.create(user=instance)
+        # Optionnel : pour debug dans la console Termux
+        print(f"[SIGNAL] → Solde créé avec 50 coins pour {instance.username}")
