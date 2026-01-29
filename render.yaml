@@ -15,3 +15,8 @@ services:
     python manage.py collectstatic --noinput
   startCommand: gunicorn fbboost.wsgi:application --log-file -
   autoDeployTrigger: "off"
+#!/bin/bash
+python manage.py makemigrations --noinput
+python manage.py migrate --fake-initial   # ou --fake si besoin
+python manage.py migrate
+gunicorn ton_projet.wsgi   # ton commande start habituelle
