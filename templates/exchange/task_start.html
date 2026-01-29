@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-body text-center">
+            <h2 class="card-title mb-4">{{ task.platform|capfirst }} - {{ task.action|capfirst }}</h2>
+            <p class="lead mb-4">Récompense : <strong>+{{ task.coins_reward }} coins</strong></p>
+
+            <p class="mb-4">
+                Clique sur le bouton ci-dessous pour ouvrir la page et effectuer l'action.
+                <br>
+                <small class="text-muted">Reviens ici après avoir terminé pour confirmer.</small>
+            </p>
+
+            <!-- Bouton pour ouvrir la page externe -->
+            <button id="open-social" class="btn btn-primary btn-lg mb-4">
+                Ouvrir {{ task.platform }} maintenant
+            </button>
+
+            <!-- Zone de confirmation (cachée au départ) -->
+            <div id="confirmation-zone" style="display: none;">
+                <p class="mb-3">
+                    Reviens sur cet onglet, ferme l'autre si tu veux, et clique sur le bouton ci-dessous quand tu as terminé l'action.
+                </p>
+
+                <button id="confirm-btn" class="btn btn-success btn-lg" disabled>
+                    J'ai terminé – Confirmer et obtenir les coins
+                </button>
+
+                <p id="status-message" class="mt-4 fw-bold fs-5" style="min-height: 1.5em;"></p>
+
+                <!-- Compteur visible -->
+                <div id="timer-display" class="mt-3 text-muted">
+                    Temps écoulé : <span id="seconds">0</span> / 5 secondes
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables
+const openBtn = document.getElementById('open-social');
+const confirmBtn = document.getElementById('confirm-btn');
+const statusMsg = document.getElementById('status-message');
+const secondsDisplay = document.getElementById('seconds');
+const confirmationZone = document.getElementById('confirmation-zone');
+
+const minSeconds = {{ min_seconds|default:5 }};
+const taskId = {{ task.id }};
+const token = "{{ verification_token }}";
+
+// Ouvrir la page dans un nouvel onglet
+openBtn.addEventListener('click', () => {
+    window.open('{{ task.task_url }}', '_blank');
+    
+    // Afficher la zone de confirmation après un court délai
+    setTimeout(() => {
+        confirmationZone.style.display = 'block';
+        openBtn.disabled = true;
+        openBtn.textContent = "Page ouverte – reviens ici quand tu as fini";
+        statusMsg.textContent = "Reviens sur cet onglet pour démarrer le chronomètre...";
+    }, 800);
+});
+
+// Détection du retour sur l'onglet (focus)
+let startTime = null;
+let timerInterval = null;
+
+window.addEventListener('focus', () => {
+    if (startTime === null && confirmBtn.disabled) {
+        startTime = Date.now();
+        statusMsg.textContent = "Chronomètre démarré... reste ici au moins " + minSeconds + " secondes";
+        statusMsg.className = "mt-4 fw-bold fs-5 text-primary";
+
+        timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            secondsDisplay.textContent = elapsed;
+
+            if (elapsed >= minSeconds) {
+                clearInterval(timerInterval);
+                confirmBtn.disabled = false;
+                statusMsg.textContent = "Temps suffisant ! Clique pour confirmer.";
+                statusMsg.className = "mt-4 fw-bold fs-5 text-success";
+                confirmBtn.textContent = "Confirmer et obtenir les coins";
+            }
+        }, 500);  // mise à jour toutes les 0.5s pour fluidité
+    }
+});
+
+// Quand l'onglet est caché → pause le timer (optionnel mais utile)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && timerInterval) {
+        clearInterval(timerInterval);
+        statusMsg.textContent = "Onglet caché... reviens pour reprendre le chrono !";
+        statusMsg.className = "mt-4 fw-bold fs-5 text-warning";
+    }
+});
+
+// Confirmation finale (envoi au serveur)
+confirmBtn.addEventListener('click', () => {
+    statusMsg.textContent = "Vérification en cours...";
+    statusMsg.className = "mt-4 fw-bold fs-5 text-info";
+
+    fetch("{% url 'confirm_task' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({
+            task_id: taskId,
+            token: token
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusMsg.textContent = data.message || "Succès ! Coins ajoutés.";
+            statusMsg.className = "mt-4 fw-bold fs-5 text-success";
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Terminé";
+
+            // Redirection automatique vers la prochaine tâche (si data.next_task_url existe)
+            if (data.next_task_url) {
+                setTimeout(() => {
+                    window.location.href = data.next_task_url;
+                }, 2500);
+            }
+        } else {
+            statusMsg.textContent = data.error || "Erreur lors de la confirmation";
+            statusMsg.className = "mt-4 fw-bold fs-5 text-danger";
+            confirmBtn.disabled = false;
+        }
+    })
+    .catch(() => {
+        statusMsg.textContent = "Erreur réseau – réessaie";
+        statusMsg.className = "mt-4 fw-bold fs-5 text-danger";
+    });
+});
+</script>
+{% endblock %}
