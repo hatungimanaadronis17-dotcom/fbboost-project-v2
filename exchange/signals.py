@@ -12,16 +12,16 @@ from .models import Balance, Transaction, Task
 def create_balance_and_welcome_tasks(sender, instance, created, **kwargs):
     """
     À la création d'un nouvel utilisateur :
-    1. Crée son solde avec 50 coins
-    2. Crée une transaction d'historique pour ces 50 coins
-    3. Crée des tâches de bienvenue : follow les comptes admin sur chaque plateforme
+    - Crée le solde avec 50 coins
+    - Enregistre la transaction bonus
+    - Crée les tâches de bienvenue (follow admin sur chaque plateforme)
     """
     if not created:
         return
 
     try:
         with transaction.atomic():
-            # 1. Création / récupération du solde (on force la création si absent)
+            # Création du solde (50 coins par défaut)
             balance, created_balance = Balance.objects.get_or_create(
                 user=instance,
                 defaults={
@@ -31,7 +31,7 @@ def create_balance_and_welcome_tasks(sender, instance, created, **kwargs):
                 }
             )
 
-            # Si le solde vient d'être créé → on enregistre la transaction de bienvenue
+            # Transaction historique pour les 50 coins d'inscription
             if created_balance:
                 Transaction.objects.create(
                     user=instance,
@@ -41,21 +41,20 @@ def create_balance_and_welcome_tasks(sender, instance, created, **kwargs):
                     created_at=timezone.now()
                 )
 
-            # 2. Tâches de bienvenue : follow admin sur les plateformes
+            # Tâches de bienvenue : follow des comptes admin
             platforms = ['facebook', 'instagram', 'tiktok', 'youtube']
-            admin_username = "Adronis4000"  # ← À déplacer dans settings.py ou un model AdminConfig si possible
+            admin_username = "Adronis4000"  # ← À déplacer dans settings.py plus tard (ex: settings.ADMIN_SOCIAL_USERNAME)
             tasks_to_create = []
 
             for platform in platforms:
                 task_url = f"https://www.{platform}.com/{admin_username}"
 
-                # Vérification anti-doublon stricte
+                # Anti-doublon : on ne recrée pas si tâche déjà existante (même incomplète)
                 if not Task.objects.filter(
                     user=instance,
                     platform=platform,
                     action='follow',
-                    task_url=task_url,
-                    completed=False  # on ne recrée pas si déjà en cours
+                    task_url=task_url
                 ).exists():
                     tasks_to_create.append(
                         Task(
@@ -63,9 +62,9 @@ def create_balance_and_welcome_tasks(sender, instance, created, **kwargs):
                             platform=platform,
                             action='follow',
                             task_url=task_url,
-                            coins_reward=10,           # 10 coins par follow admin
+                            coins_reward=10,              # 10 coins par follow
                             completed=False,
-                            validated=False,           # même si validé auto ailleurs, on garde le champ
+                            validated=False,              # même si validé auto plus tard
                             created_at=timezone.now()
                         )
                     )
@@ -73,17 +72,17 @@ def create_balance_and_welcome_tasks(sender, instance, created, **kwargs):
             if tasks_to_create:
                 Task.objects.bulk_create(tasks_to_create)
 
-                # Optionnel : petite transaction bonus pour les tâches de bienvenue
-                # (tu peux supprimer si tu ne veux pas créditer avant qu'elles soient faites)
+                # Optionnel : tu peux ici créditer les 40 coins immédiatement si tu considères
+                # que suivre l'admin est "garanti" ou "motivationnel" → sinon laisse commenté
                 # Transaction.objects.create(
                 #     user=instance,
                 #     tx_type='bonus',
-                #     coins=40,  # 4 plateformes × 10
-                #     description="Bonus tâches de bienvenue (follow admin)",
+                #     coins=40,
+                #     description="Bonus tâches bienvenue (follow admin sur 4 plateformes)",
                 #     created_at=timezone.now()
                 # )
 
     except Exception as e:
-        # En production, on logge silencieusement (pas de crash de l'inscription)
-        # Tu peux remplacer par logger.error si tu as logging configuré
-        print(f"[SIGNAL ERROR] Échec création solde/tâches pour {instance.username}: {str(e)}")
+        # En cas d'erreur : on ne fait pas planter l'inscription
+        # Tu peux remplacer par un vrai logger plus tard
+        print(f"[SIGNAL ERROR] Problème lors de la création solde/tâches pour {instance.username}: {e}")
