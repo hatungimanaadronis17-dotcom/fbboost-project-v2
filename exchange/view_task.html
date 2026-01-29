@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>{{ task.platform|capfirst }} - {{ task.action|capfirst }}</h2>
+<p>Récompense : +{{ task.coins_reward }} coins</p>
+
+<p>Clique sur le bouton pour ouvrir la page et effectuer l'action :</p>
+
+<button id="open-social" class="btn btn-primary btn-lg">
+  Ouvrir {{ task.platform }} maintenant
+</button>
+
+<div id="confirmation-zone" style="margin-top: 40px; display: none;">
+  <p>Reviens ici (ou ferme l'autre onglet) et clique ci-dessous quand tu as terminé :</p>
+  
+  <button id="confirm-btn" class="btn btn-success btn-lg" disabled>
+    J'ai terminé – Confirmer et obtenir les coins
+  </button>
+  
+  <p id="status" style="margin-top: 20px; font-size: 1.2em; font-weight: bold;"></p>
+</div>
+
+<script>
+  const openBtn = document.getElementById('open-social');
+  const confirmBtn = document.getElementById('confirm-btn');
+  const status = document.getElementById('status');
+  const minSeconds = {{ min_seconds }};
+
+  let startTime = null;
+  let intervalId = null;
+
+  // Ouvrir la page externe dans un nouvel onglet
+  openBtn.addEventListener('click', () => {
+    window.open('{{ task.task_url }}', '_blank');
+    
+    // Afficher la zone de confirmation après un court délai
+    setTimeout(() => {
+      document.getElementById('confirmation-zone').style.display = 'block';
+      openBtn.disabled = true;
+      openBtn.textContent = "Page ouverte – reviens ici";
+    }, 800);
+  });
+
+  // Détecte quand l'utilisateur revient sur l'onglet (focus)
+  window.addEventListener('focus', () => {
+    if (startTime === null && confirmBtn.disabled) {
+      startTime = Date.now();
+      status.textContent = "Chronomètre démarré... reste ici au moins " + minSeconds + " secondes";
+
+      intervalId = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        status.textContent = `Temps écoulé : ${elapsed}s / ${minSeconds}s requis`;
+
+        if (elapsed >= minSeconds) {
+          clearInterval(intervalId);
+          confirmBtn.disabled = false;
+          status.textContent = "Temps suffisant ! Tu peux confirmer maintenant.";
+          confirmBtn.textContent = "Confirmer et obtenir les coins";
+        }
+      }, 1000);
+    }
+  });
+
+  // Quand on clique sur confirmer (envoi au serveur)
+  confirmBtn.addEventListener('click', () => {
+    fetch("{% url 'confirm_task' task.id %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        status.textContent = "Succès ! +" + data.coins + " coins ajoutés.";
+        confirmBtn.disabled = true;
+        // Option : redirection auto vers prochaine tâche après 2s
+        setTimeout(() => { window.location.href = data.next_url || '/dashboard/'; }, 2000);
+      } else {
+        status.textContent = "Erreur : " + (data.error || "Impossible de confirmer");
+      }
+    })
+    .catch(() => {
+      status.textContent = "Erreur réseau – réessaie";
+    });
+  });
+</script>
+
+{% endblock %}
