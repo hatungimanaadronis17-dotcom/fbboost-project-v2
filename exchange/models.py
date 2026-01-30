@@ -52,21 +52,30 @@ class Balance(models.Model):
         verbose_name=_("Utilisateur")
     )
     coins = models.PositiveIntegerField(
-        default=50,  # 50 coins offerts à la création
+        default=50,
         verbose_name=_("Coins")
     )
+    # TEMPORAIRE : null=True pour que la migration passe
     created_at = models.DateTimeField(
         auto_now_add=True,
-        null=True,          # ← AJOUTE ÇA TEMPORAIREMENT
+        null=True,
         blank=True,
         verbose_name=_("Créé le")
     )
     updated_at = models.DateTimeField(
         auto_now=True,
-        null=True,          # ← AJOUTE ÇA TEMPORAIREMENT
+        null=True,
         blank=True,
         verbose_name=_("Mis à jour le")
     )
+
+    class Meta:
+        verbose_name = _("Solde")
+        verbose_name_plural = _("Soldes")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} – {self.coins} coins"
 
     class Meta:
         verbose_name = _("Solde")
