@@ -3,18 +3,38 @@
 {% block content %}
 <div class="container mt-5 text-white text-center">
     <h1 class="display-4 mb-4">Échange de Likes & Follows</h1>
+    
     <h2 class="mb-5">
-        Tes coins : <strong class="text-warning fs-1">
-            {% if balance %}{{ balance.coins }}{% else %}0{% endif %}
+        Tes coins : 
+        <strong class="text-warning fs-1">
+            {% if user.is_authenticated and user.balance %}
+                {{ user.balance.coins }}
+            {% else %}
+                0
+            {% endif %}
         </strong>
     </h2>
+
+    {% if user.is_authenticated %}
+        <p class="lead mb-4">Connectée en tant que <strong>{{ user.username }}</strong></p>
+    {% else %}
+        <p class="lead mb-4 text-danger">Connecte-toi pour gagner des coins !</p>
+    {% endif %}
 </div>
 
 <div class="row justify-content-center g-4 mb-5">
-    <div class="col-6 col-md-3"><button class="btn btn-primary btn-lg w-100 p-4" onclick="select('facebook')">Facebook</button></div>
-    <div class="col-6 col-md-3"><button class="btn btn-danger btn-lg w-100 p-4" onclick="select('instagram')">Instagram</button></div>
-    <div class="col-6 col-md-3"><button class="btn btn-dark btn-lg w-100 p-4" onclick="select('tiktok')">TikTok</button></div>
-    <div class="col-6 col-md-3"><button class="btn btn-warning btn-lg w-100 p-4" onclick="select('youtube')">YouTube</button></div>
+    <div class="col-6 col-md-3">
+        <button class="btn btn-primary btn-lg w-100 p-4" onclick="select('facebook')">Facebook</button>
+    </div>
+    <div class="col-6 col-md-3">
+        <button class="btn btn-danger btn-lg w-100 p-4" onclick="select('instagram')">Instagram</button>
+    </div>
+    <div class="col-6 col-md-3">
+        <button class="btn btn-dark btn-lg w-100 p-4" onclick="select('tiktok')">TikTok</button>
+    </div>
+    <div class="col-6 col-md-3">
+        <button class="btn btn-warning btn-lg w-100 p-4" onclick="select('youtube')">YouTube</button>
+    </div>
 </div>
 
 <div id="form-container" class="card bg-dark text-white p-5" style="display:none; max-width:650px; margin:auto; border-radius:20px;">
@@ -48,6 +68,11 @@ function getCookie(name) {
 }
 
 function select(p) {
+    if (!document.querySelector('#task-form')) {
+        alert("Le formulaire n'est pas chargé. Recharge la page.");
+        return;
+    }
+    
     document.getElementById('platform').value = p;
     document.getElementById('title').innerText = p.charAt(0).toUpperCase() + p.slice(1);
     document.getElementById('form-container').style.display = 'block';
@@ -56,7 +81,8 @@ function select(p) {
 
 document.getElementById('task-form').onsubmit = async (e) => {
     e.preventDefault();
-    document.getElementById('result').innerHTML = '<p class="text-info">Vérification en cours...</p>';
+    const result = document.getElementById('result');
+    result.innerHTML = '<p class="text-info">Vérification en cours...</p>';
 
     const form = new FormData(e.target);
     
@@ -73,20 +99,22 @@ document.getElementById('task-form').onsubmit = async (e) => {
         const data = await res.json();
 
         if (data.success) {
-            document.getElementById('result').innerHTML = 
+            result.innerHTML = 
                 `<p class="text-success">${data.message}<br>
-                 Total : <strong>${data.total}</strong> coins</p>`;
-            // Mise à jour du solde en haut sans recharger la page
-            document.querySelector('.text-warning.fs-1').textContent = data.total;
+                 Total : <strong>${data.total || 'mis à jour'}</strong> coins</p>`;
+            
+            // Mise à jour du solde en haut sans recharger
+            const balanceEl = document.querySelector('.text-warning.fs-1');
+            if (balanceEl && data.total) {
+                balanceEl.textContent = data.total;
+            }
         } else {
             let errorMsg = data.error || data.message || 'Erreur inconnue';
-            if (data.cooldown) errorMsg = data.error;
-            document.getElementById('result').innerHTML = 
-                `<p class="text-danger">${errorMsg}</p>`;
+            if (data.cooldown) errorMsg = data.error || 'Attends un peu avant la prochaine tâche';
+            result.innerHTML = `<p class="text-danger">${errorMsg}</p>`;
         }
     } catch (err) {
-        document.getElementById('result').innerHTML = 
-            '<p class="text-danger">Erreur de connexion. Réessayez plus tard.</p>';
+        result.innerHTML = '<p class="text-danger">Erreur de connexion. Réessaie plus tard.</p>';
         console.error(err);
     }
 };
