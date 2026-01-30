@@ -52,7 +52,7 @@ class Balance(models.Model):
         verbose_name=_("Utilisateur")
     )
     coins = models.PositiveIntegerField(
-        default=50,  # ← 50 coins offerts à la création
+        default=50,  # 50 coins offerts à la création
         verbose_name=_("Coins")
     )
     created_at = models.DateTimeField(
@@ -68,7 +68,6 @@ class Balance(models.Model):
         verbose_name = _("Solde")
         verbose_name_plural = _("Soldes")
         ordering = ['-created_at']
-        # db_table = 'exchange_balance'   # ← optionnel, Django le fait déjà automatiquement
 
     def __str__(self):
         return f"{self.user.username} – {self.coins} coins"
@@ -141,9 +140,10 @@ class Task(models.Model):
         default=False,
         verbose_name=_("Complétée par l'utilisateur")
     )
+    # Champ conservé pour compatibilité, mais non utilisé pour validation admin
     validated = models.BooleanField(
         default=False,
-        verbose_name=_("Validée par admin")
+        verbose_name=_("Validée")
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -155,37 +155,26 @@ class Task(models.Model):
         verbose_name=_("Validée le")
     )
 
+    # Champs ajoutés pour la vérification automatique (timer 5s + sécurité)
+    verification_token = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name=_("Token de vérification unique")
+    )
+    last_verification_attempt = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_("Dernière tentative de vérification")
+    )
+
     class Meta:
         ordering = ['-created_at']
         verbose_name = _("Tâche")
         verbose_name_plural = _("Tâches")
 
-    def validate_reward(self):
-        """Valide la tâche et crédite les coins (idempotent)"""
-        if self.validated:
-            return False
-
-        with transaction.atomic():
-            balance = Balance.objects.select_for_update().get(user=self.user)
-
-            balance.coins += self.coins_reward
-            balance.save(update_fields=['coins', 'updated_at'])
-
-            Transaction.objects.create(
-                user=self.user,
-                tx_type='credit',
-                coins=self.coins_reward,
-                description=f"Reward validated: {self.platform} - {self.action}"
-            )
-
-            self.validated = True
-            self.validated_at = timezone.now()
-            self.save(update_fields=['validated', 'validated_at'])
-
-        return True
-
     def __str__(self):
-        status = "✓" if self.validated else "⌛" if self.completed else "⏳"
+        status = "✓" if self.completed else "⌛"
         return f"{self.user.username} → {self.platform} {self.action} {status} +{self.coins_reward}"
 
 
@@ -241,15 +230,22 @@ class Withdrawal(models.Model):
 
 
 # =========================
-# SIGNAL : Création auto du solde à 50 coins lors de l'inscription
+# SIGNAL : Création auto du solde à 50 coins + transaction lors de l'inscription
 # =========================
 @receiver(post_save, sender=User)
 def create_user_balance(sender, instance, created, **kwargs):
     """
     Crée automatiquement un objet Balance avec 50 coins
-    quand un nouvel utilisateur est créé.
+    et enregistre la transaction de bienvenue quand un nouvel utilisateur est créé.
     """
     if created:
-        Balance.objects.create(user=instance)
-        # Optionnel : pour debug dans la console Termux
-        print(f"[SIGNAL] → Solde créé avec 50 coins pour {instance.username}")
+        with transaction.atomic():
+            balance = Balance.objects.create(user=instance)
+            Transaction.objects.create(
+                user=instance,
+                tx_type='bonus',
+                coins=50,
+                description="Bonus d'inscription : 50 coins offerts",
+                created_at=timezone.now()
+            )
+            print(f"[SIGNAL] → Solde créé avec 50 coins pour {instance.username}")
