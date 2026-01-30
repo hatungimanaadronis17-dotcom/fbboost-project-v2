@@ -57,10 +57,14 @@ class Balance(models.Model):
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
+        null=True,          # ← AJOUTE ÇA TEMPORAIREMENT
+        blank=True,
         verbose_name=_("Créé le")
     )
     updated_at = models.DateTimeField(
         auto_now=True,
+        null=True,          # ← AJOUTE ÇA TEMPORAIREMENT
+        blank=True,
         verbose_name=_("Mis à jour le")
     )
 
