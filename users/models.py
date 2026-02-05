@@ -7,6 +7,9 @@ class UserSecurity(models.Model):
     # Lien avec le modèle utilisateur de Django
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    # Clé secrète pour sécurité
+    secret_key = models.CharField(max_length=255)
+
     # Exemple de champs pour sécurité
     security_question = models.CharField(max_length=255)
     security_answer = models.CharField(max_length=255)
