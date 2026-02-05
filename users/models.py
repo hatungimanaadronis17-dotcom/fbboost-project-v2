@@ -1,20 +1,11 @@
-# users/models.py
-
 from django.db import models
 from django.conf import settings
 
 class UserSecurity(models.Model):
-    # Lien avec le modèle utilisateur de Django
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    # Clé secrète pour sécurité
     secret_key = models.CharField(max_length=255)
-
-    # Exemple de champs pour sécurité
     security_question = models.CharField(max_length=255)
     security_answer = models.CharField(max_length=255)
-
-    # Champs de date
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
