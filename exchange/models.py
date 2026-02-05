@@ -145,6 +145,7 @@ class Task(models.Model):
     )
     task_url = models.URLField(
         max_length=500,
+        default="https://example.com",
         verbose_name=_("Lien de la tâche")
     )
     coins_reward = models.PositiveIntegerField(
