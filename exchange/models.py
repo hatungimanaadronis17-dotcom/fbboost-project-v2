@@ -134,6 +134,7 @@ class Task(models.Model):
     platform = models.CharField(
         max_length=20,
         choices=PLATEFORMES,
+        default='facebook',
         verbose_name=_("Plateforme")
     )
     action = models.CharField(
