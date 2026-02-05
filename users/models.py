@@ -9,7 +9,7 @@ class UserSecurity(models.Model):
     user_agent = models.TextField(
         default="",         # ajoute aussi un default si c'est non-nullable et nouveau
     )
-    created_at = models.DateTimeField(auto_now_add=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username
