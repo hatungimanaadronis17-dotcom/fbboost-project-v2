@@ -139,11 +139,7 @@ class Task(models.Model):
     action = models.CharField(
         max_length=20,
         choices=ACTION_CHOICES,
-        default=('follow', 'Suivre'),
-    ('like', 'Aimer'),
-    ('comment', 'Commenter'),
-    ('share', 'Partager'),
-    ('subscribe', 'S’abonner'),               
+        default='follow',               
         verbose_name=_("Action")
     )
     task_url = models.URLField(
