@@ -1,9 +1,10 @@
-from django.db import models, transaction
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db import transaction
 
 
 # =========================
@@ -55,27 +56,14 @@ class Balance(models.Model):
         default=50,
         verbose_name=_("Coins")
     )
-    # TEMPORAIRE : null=True pour que la migration passe
     created_at = models.DateTimeField(
         auto_now_add=True,
-        null=True,
-        blank=True,
         verbose_name=_("Créé le")
     )
     updated_at = models.DateTimeField(
         auto_now=True,
-        null=True,
-        blank=True,
         verbose_name=_("Mis à jour le")
     )
-
-    class Meta:
-        verbose_name = _("Solde")
-        verbose_name_plural = _("Soldes")
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.user.username} – {self.coins} coins"
 
     class Meta:
         verbose_name = _("Solde")
@@ -102,12 +90,12 @@ class Transaction(models.Model):
         verbose_name=_("Type")
     )
     coins = models.IntegerField(
-        default=0,                          # ← AJOUTE ÇA (ou une autre valeur logique)
+        default=0,
         verbose_name=_("Coins")
     )
-
     description = models.CharField(
         max_length=255,
+        default="",
         verbose_name=_("Description")
     )
     created_at = models.DateTimeField(
@@ -144,7 +132,7 @@ class Task(models.Model):
     action = models.CharField(
         max_length=20,
         choices=ACTION_CHOICES,
-        default='follow',               
+        default='follow',
         verbose_name=_("Action")
     )
     task_url = models.URLField(
@@ -174,8 +162,6 @@ class Task(models.Model):
         blank=True,
         verbose_name=_("Validée le")
     )
-
-    # Champs ajoutés pour la vérification automatique (timer 5s + sécurité)
     verification_token = models.CharField(
         max_length=64,
         blank=True,
@@ -213,10 +199,14 @@ class Withdrawal(models.Model):
         choices=METHODES,
         verbose_name=_("Méthode")
     )
-    coins_amount = models.PositiveIntegerField(verbose_name=_("Montant en coins"))
+    coins_amount = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_("Montant en coins")
+    )
     amount_cad = models.DecimalField(
         max_digits=10,
         decimal_places=2,
+        default=0.00,
         verbose_name=_("Montant CAD")
     )
     status = models.CharField(
@@ -260,7 +250,7 @@ def create_user_balance(sender, instance, created, **kwargs):
     """
     if created:
         with transaction.atomic():
-            balance = Balance.objects.create(user=instance)
+            Balance.objects.create(user=instance)
             Transaction.objects.create(
                 user=instance,
                 tx_type='bonus',
