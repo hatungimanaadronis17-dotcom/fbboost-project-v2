@@ -101,7 +101,11 @@ class Transaction(models.Model):
         choices=TRANSACTION_TYPES,
         verbose_name=_("Type")
     )
-    coins = models.IntegerField(verbose_name=_("Coins"))
+    coins = models.IntegerField(
+        default=0,                          # ← AJOUTE ÇA (ou une autre valeur logique)
+        verbose_name=_("Coins")
+    )
+
     description = models.CharField(
         max_length=255,
         verbose_name=_("Description")
