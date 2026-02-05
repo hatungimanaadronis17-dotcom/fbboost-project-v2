@@ -57,8 +57,8 @@ class Balance(models.Model):
         verbose_name=_("Coins")
     )
     created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_("Créé le")
+    default=timezone.now,          # ← remplace auto_now_add=True par ça
+    verbose_name=_("Créé le")
     )
     updated_at = models.DateTimeField(
         auto_now=True,
