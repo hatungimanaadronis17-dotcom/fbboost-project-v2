@@ -61,8 +61,8 @@ class Balance(models.Model):
     verbose_name=_("Créé le")
     )
     updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_("Mis à jour le")
+         default=timezone.now,   # temporaire
+    verbose_name=_("Créé le")
     )
 
     class Meta:
