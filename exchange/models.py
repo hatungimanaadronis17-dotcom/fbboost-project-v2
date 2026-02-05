@@ -188,6 +188,7 @@ class Task(models.Model):
 # =========================
 # RETRAIT (WITHDRAWAL)
 # =========================
+
 class Withdrawal(models.Model):
     user = models.ForeignKey(
         User,
@@ -198,6 +199,7 @@ class Withdrawal(models.Model):
     method = models.CharField(
         max_length=20,
         choices=METHODES,
+        default='paypal',                    
         verbose_name=_("Méthode")
     )
     coins_amount = models.PositiveIntegerField(
